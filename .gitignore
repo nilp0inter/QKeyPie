@@ -38,3 +38,15 @@ tags
 # Persistent undo
 [._]*.un~
 
+
+
+# Added by cargo
+
+/target
+
+
+### Created by https://www.gitignore.io
+### direnv ###
+.direnv
+.envrc
+
