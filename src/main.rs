@@ -10,12 +10,13 @@ mod model;
 
 fn model_from_config() -> anyhow::Result<model::Model> {
     let cfg = config::read_config("config.toml")?;
+    println!("Config = {:?}", cfg);
     let model = model::from_config(cfg)?;
     Ok(model)
 }
 
 fn main() {
     let model = model_from_config();
-    println!("{:?}", model);
+    println!("Model = {:?}", model);
 }
     

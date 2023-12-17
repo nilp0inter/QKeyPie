@@ -28,10 +28,19 @@ on_double_click = [
   { ChangeWheel = "First" }
 ]
 
+[buttons.exit.interaction]
+on_click = [
+  { ChangeWheel = "Next" }
+]
+
+
+[buttonsets.navigation]
+button1="exit"
+
+[profiles.niano.buttonsets]
+first="navigation"
+
 [profiles.niano.wheels]
 
 zoom="zoom"
 
-[profiles.nono.wheels]
-
-Pepito="pepito"

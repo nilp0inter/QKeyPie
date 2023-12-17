@@ -10,13 +10,13 @@ use crate::actions::{Action, Button, Wheel, ButtonSet, ButtonId, WheelId, Button
 type Actions = Option<Vec<Action>>;
 
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Profile {
     pub buttonsets: Option<HashMap<String, ButtonSetId>>,
     pub wheels: Option<HashMap<String, WheelId>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     pub buttons: Option<HashMap<ButtonId, Button<Actions>>>,
     pub wheels: Option<HashMap<WheelId, Wheel<Actions>>>,
