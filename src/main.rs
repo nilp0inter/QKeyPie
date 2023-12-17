@@ -5,8 +5,17 @@
 // // use enigo::*;
 
 mod config;
+mod actions;
+mod model;
+
+fn model_from_config() -> anyhow::Result<model::Model> {
+    let cfg = config::read_config("config.toml")?;
+    let model = model::from_config(cfg)?;
+    Ok(model)
+}
 
 fn main() {
-    config::main()
+    let model = model_from_config();
+    println!("{:?}", model);
 }
     
