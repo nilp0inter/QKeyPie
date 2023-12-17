@@ -1,139 +1,147 @@
-use rocket::{get, routes, State};
-use rocket::tokio::task::spawn_blocking;
-use xencelabs_quick_keys::{QKDevice, ConnectionMode, QKResult, ScreenOrientation, ScreenBrightness, WheelSpeed, Event, ButtonState};
-use hidapi::HidApi;
-use std::{thread,time};
-use std::sync::{Arc, Mutex};
-use enigo::*;
-use rlua::{Lua, Function};
+// // use xencelabs_quick_keys::{QKDevice, ConnectionMode, QKResult, ScreenOrientation, ScreenBrightness, WheelSpeed, Event, ButtonState};
+// // use hidapi::HidApi;
+// // use std::{thread,time};
+// // use std::sync::{Arc, Mutex};
+// // use enigo::*;
+
+// use serde::Serialize;
+
+// #[derive(Serialize)]
+// struct Config {
+//    ip: String,
+//    port: Option<u16>,
+//    keys: Keys,
+// }
+
+// #[derive(Serialize)]
+// // #[serde(tag = "type", content = "value")]
+// // #[serde(untagged)]
+// enum Either<L, R> {
+//    Left(L),
+//    Right(R),
+// }
+
+// #[derive(Serialize)]
+// struct Keys {
+//    github: String,
+//    travis: Option<String>,
+//    niano: Either<String, u32>,
+// }
 
 
-struct SharedData {
-    count: i32,
+// fn main() -> () {
+//    let _ : Either<String, i32> = Either::Right(42);
+//     let config = Config {
+//        ip: "127.0.0.1".to_string(),
+//        port: None,
+//        keys: Keys {
+//            github: "xxxxxxxxxxxxxxxxx".to_string(),
+//            // travis: Some("yyyyyyyyyyyyyyyyy".to_string()),
+//            travis: None,
+//            // niano: Either::Left("niano".to_string()),
+//            niano: Either::Right(42),
+//        },
+//     };
+
+//     let toml = toml::to_string(&config).unwrap();
+//     println!("{}", toml);
+// }
+//
+
+use enigo::{
+    agent::{Agent, Token},
+    Button, Enigo, Key, Settings,
+};
+use std::{thread, time::Duration};
+
+use serde::Serialize;
+use serde::Deserialize;
+
+#[derive(Serialize, Deserialize)]
+enum ScreenShotType {
+    Full,
+    Window,
 }
 
-#[get("/increment")]
-async fn increment(data: &State<Arc<Mutex<SharedData>>>) -> String {
-    let mut data = data.lock().unwrap();
-    data.count += 1;
-    format!("Count incremented to: {}", data.count)
+#[derive(Serialize, Deserialize)]
+// #[serde(tag = "type", content = "value")]
+enum NonEnigoAction {
+    Sleep(u64),
+    Shutdown,
+    ScreenShot(ScreenShotType),
 }
 
-#[get("/get_count")]
-async fn get_count(data: &State<Arc<Mutex<SharedData>>>) -> String {
-    let data = data.lock().unwrap();
-    format!("Current count is: {}", data.count)
+// #[serde(tag = "type", content = "value")]
+// #[serde(tag = "type")]
+#[derive(Serialize, Deserialize)]
+#[serde(untagged)]
+enum Action {
+    Input(Token),
+    NonEnigo(NonEnigoAction),
 }
 
-#[get("/")]
-async fn index(_data: &rocket::State<SharedData>) -> String {
-    // Handle the HTTP request, e.g., returning a simple response
-    "Hello from Rocket!".to_string()
+#[derive(Serialize, Deserialize)]
+struct ButtonConfig {
+   text: String,
+   actions: Vec<Action>,
 }
 
-#[rocket::main]
-async fn main() {
-    let shared_data = Arc::new(Mutex::new(SharedData { count: 0 }));
-
-    let data_for_thread = Arc::clone(&shared_data);
-
-    // Spawn a blocking task for managing the Xencelabs Quick Keys device
-    tokio::spawn(async {
-        spawn_blocking(move || {
-            if let Ok(api) = HidApi::new() {
-                match run(api, data_for_thread) {
-                    Ok(_) => println!("Device managed successfully"),
-                    Err(e) => println!("Error managing device: {:?}", e),
-                }
-            } else {
-                eprintln!("Error initializing HidApi");
-            }
-        }).await.unwrap();
-    });
-
-    // Launch the Rocket application
-    rocket::build()
-        .mount("/", routes![increment, get_count])
-        .manage(shared_data)
-        .launch()
-        .await
-        .unwrap();
+#[derive(Serialize, Deserialize)]
+struct PanelConfig {
+    name: String,
+    button1: Option<ButtonConfig>,
+    button2: Option<ButtonConfig>,
+    button3: Option<ButtonConfig>,
+    button4: Option<ButtonConfig>,
+    button5: Option<ButtonConfig>,
+    button6: Option<ButtonConfig>,
+    button7: Option<ButtonConfig>,
+    button8: Option<ButtonConfig>,
 }
 
-fn run(api: HidApi, data_for_thread: Arc<Mutex<SharedData>>) -> QKResult<()> {
+fn main() {
+    // thread::sleep(Duration::from_secs(2));
+    let mut enigo = Enigo::new(&Settings::default()).unwrap();
 
-    let lua = Lua::new();
-    let mut enigo = Enigo::new();
-    let mut current_count : i32 = 0;
+    // write text, move the mouse (10/10) relative from the cursors position, scroll
+    // down, enter the unicode U+1F525 (🔥) and then select all
+    let actions : Vec<Action> = vec![
+        Action::Input(Token::Text("Hello World! ❤️".to_string())),
+        Action::Input(Token::MoveMouse(10, 10, enigo::Coordinate::Rel)),
+        Action::Input(Token::Scroll(5, enigo::Axis::Vertical)),
+        Action::Input(Token::Button(Button::Left, enigo::Direction::Click)),
+        Action::Input(Token::Key(Key::Unicode('🔥'), enigo::Direction::Click)),
+        Action::Input(Token::Key(Key::Control, enigo::Direction::Press)),
+        Action::NonEnigo(NonEnigoAction::Sleep(1000)),
+        Action::Input(Token::Key(Key::Unicode('a'), enigo::Direction::Click)),
+        Action::Input(Token::Key(Key::Control, enigo::Direction::Release)),
+        Action::NonEnigo(NonEnigoAction::ScreenShot(ScreenShotType::Full)),
+        Action::NonEnigo(NonEnigoAction::Shutdown),
+    ];
 
-    match QKDevice::open(api, ConnectionMode::Auto) {
-        Ok(dev) => {
-            // Wrap the device in Arc and Mutex for shared ownership and thread safety
-            let sdev = Arc::new(Mutex::new(dev));
-            lua.context(|lua_ctx| {
-                let globals = lua_ctx.globals();
-                let print: Function = globals.get("print").unwrap();
-                // globals.set("vec2", vec2_constructor)?;
-                let _ = print.call::<_, ()>("hello from rust");
-                // This doesn't work we have to put dev behind a Mutex to make it thread safe
-                // Example: static ref db = Mutex::new(mysqldata::MySQLData::init_connection(&String::from("rustsite"), &String::from("root"), &String::from("toor")));
-                // let say_hi = lua_ctx.create_function(|_, (s): String| Ok(dev.show_overlay_text(&s, 3).unwrap())).unwrap();
+    let serialized = toml::to_string_pretty(&PanelConfig {
+        name: "test".to_string(),
+        button1: Some(ButtonConfig {
+            text: "127.0.0.1".to_string(),
+            actions: actions,
+        }),
+        button2: None,
+        button3: None,
+        button4: None,
+        button5: Some(ButtonConfig {
+            text: "help".to_string(),
+            actions: vec![
+                Action::Input(Token::Key(Key::F1, enigo::Direction::Click)),
+            ],
+        }),
+        button6: None,
+        button7: None,
+        button8: None,
+    }).unwrap();
+    println!("serialized = {serialized}");
 
-                let sdev_clone = Arc::clone(&sdev);
-                let say_hi = lua_ctx.create_function(move |_, (n): i32| {
-                    let mut dev = sdev_clone.lock().unwrap();
-                    Ok(dev.set_key_text(6, &format!("C: {}", n)).unwrap())
-                            
-                    // println!("Hello from lua: {}", s);
-                    // Ok(())
-                }).unwrap();
-                globals.set("say_hi", say_hi).unwrap();
-
-
-                {
-                    let mut dev = sdev.lock().unwrap();
-                    // Set device settings such as orientation, brightness, etc.
-                    dev.set_screen_orientation(ScreenOrientation::Rotate180)?;
-                    dev.set_screen_brightness(ScreenBrightness::Medium)?;
-                    dev.set_wheel_speed(WheelSpeed::Faster)?;
-                    dev.set_ring_color(0, 0, 0)?;
-
-                    thread::sleep(time::Duration::from_millis(1000));
-                    // Display "Hello World" on the device
-                    dev.show_overlay_text("Hello World", 1)?;
-                }
-                loop {
-                    let mut is_pressed = false;
-                    {
-                        let mut dev = sdev.lock().unwrap();
-                        let data = data_for_thread.lock().unwrap();
-                        if data.count != current_count {
-                            current_count = data.count;
-                            dev.set_key_text(7, &format!("C: {}", current_count))?;
-                        }
-                        // println!("Count in background task: {}", data.count);
-                    }
-                    {
-                        let mut dev = sdev.lock().unwrap();
-                        match dev.read_timeout(10) {
-                            Ok(ev) => match ev {
-                                Event::Button { state: ButtonState { button_7: true, .. } } => Ok(enigo.key_sequence("hello world")),
-                                Event::Button { state: ButtonState { button_6: true, .. } } => { is_pressed = true; Ok(()) },
-                                _ => Ok(()),
-                            },
-                            Err(e) => Err(e),
-                        }?;
-                    }
-                    if is_pressed {
-                        lua_ctx.load(&format!(r#"say_hi({})"#, current_count)).eval::<()>().unwrap();
-                        is_pressed = false;
-                    }
-                }
-            })
-        },
-        Err(e) => {
-            println!("Connection error: {:?}", e);
-            Err(e)
-        },
-    }
+    // let deserialized_config: Config = toml::from_str(&serialized).unwrap();
+    // for token in &deserialized_config.values {
+    //     println!("{:?}", enigo.execute(token));
+    // }
 }
