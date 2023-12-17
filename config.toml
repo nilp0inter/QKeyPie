@@ -1,0 +1,37 @@
+[wheels.zoom]
+on_show = [
+  { SetWheelColor = [ 255, 0, 0 ] },
+  { ShowBanner = [ 2, "Zoom" ] }
+]
+on_clockwise_start = [
+  { Key = [ "Control", "Press" ] },
+]
+on_clockwise = [
+  { Key = [ { Unicode = "+" }, "Click" ] },
+]
+on_clockwise_stop = [
+  { Key = [ "Control", "Press" ] },
+]
+on_counterclockwise_start = [
+  { Key = [ "Control", "Press" ] },
+]
+on_counterclockwise = [
+  { Key = [ { Unicode = "-" }, "Click" ] },
+]
+on_counterclockwise_stop = [
+  { Key = [ "Control", "Press" ] },
+]
+on_click = [
+  { ChangeWheel = "Next" }
+]
+on_double_click = [
+  { ChangeWheel = "First" }
+]
+
+[profiles.niano.wheels]
+
+zoom="zoom"
+
+[profiles.nono.wheels]
+
+Pepito="pepito"
