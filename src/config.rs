@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::Read;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 use serde::Serialize;
 use serde::Deserialize;
@@ -13,17 +13,17 @@ type Actions = Option<Vec<Action>>;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Profile {
-    pub buttonsets: Option<HashMap<String, ButtonSetId>>,
-    pub wheels: Option<HashMap<String, WheelId>>,
+    pub buttonsets: Option<IndexMap<String, ButtonSetId>>,
+    pub wheels: Option<IndexMap<String, WheelId>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
-    pub buttons: Option<HashMap<ButtonId, Button<Actions>>>,
-    pub wheels: Option<HashMap<WheelId, Wheel<Actions>>>,
-    pub buttonsets: Option<HashMap<ButtonSetId, ButtonSet<Option<ButtonSetId>, Option<ButtonSetId>>>>,
-    pub profiles: Option<HashMap<ProfileId, Profile>>,
+    pub buttons: Option<IndexMap<ButtonId, Button<Actions>>>,
+    pub wheels: Option<IndexMap<WheelId, Wheel<Actions>>>,
+    pub buttonsets: Option<IndexMap<ButtonSetId, ButtonSet<Option<ButtonSetId>, Option<ButtonSetId>>>>,
+    pub profiles: Option<IndexMap<ProfileId, Profile>>,
 }
 
 pub fn read_config(filename: &str) -> anyhow::Result<Config> {

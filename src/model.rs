@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 use crate::actions::{Action, Wheel, ButtonSet, Button, WheelId, ButtonId, ButtonSetId, ProfileId, LowLevelButton, HighLevelButton, LowLevelWheel, HighLevelWheel};
 use crate::config::Config;
@@ -13,13 +13,13 @@ struct LabeledButton<T> {
 
 #[derive(Debug)]
 pub struct Profile {
-    buttonsets: HashMap<ButtonSetId, ButtonSet<LabeledButton<Actions>, Button<Actions>>>,
-    wheels: HashMap<WheelId, Wheel<Actions>>,
+    buttonsets: IndexMap<ButtonSetId, ButtonSet<LabeledButton<Actions>, Button<Actions>>>,
+    wheels: IndexMap<WheelId, Wheel<Actions>>,
 }
 
 #[derive(Debug)]
 pub struct Model {
-    profiles: HashMap<ProfileId, Profile>,
+    profiles: IndexMap<ProfileId, Profile>,
 }
 
 fn get_button_by_id(cfg: &Config, id: &ButtonId) -> anyhow::Result<Button<Actions>> {
@@ -162,11 +162,11 @@ fn get_buttonset(cfg: &Config, id: &ButtonSetId) -> anyhow::Result<ButtonSet<Lab
 }
 
 pub fn from_config(cfg: Config) -> anyhow::Result<Model> {
-    let mut profiles = HashMap::new();
+    let mut profiles = IndexMap::new();
 
     for (cfg_profile_name, cfg_profile) in cfg.clone().profiles.unwrap_or_default() {
-        let mut buttonsets = HashMap::new();
-        let mut wheels = HashMap::new();
+        let mut buttonsets = IndexMap::new();
+        let mut wheels = IndexMap::new();
 
         for (cfg_buttonset_name, cfg_buttonset_id) in cfg_profile.buttonsets.unwrap_or_default() {
             let buttonset = get_buttonset(&cfg.clone(), &cfg_buttonset_id)?;
