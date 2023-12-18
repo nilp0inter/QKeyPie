@@ -11,6 +11,7 @@ pub type ProfileId = String;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum WhichButton {
     ThisButton,
+    Button0,
     Button1,
     Button2,
     Button3,
@@ -18,7 +19,7 @@ pub enum WhichButton {
     Button5,
     Button6,
     Button7,
-    Button8,
+    ButtonExtra,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -33,7 +34,7 @@ pub enum ChangeRef {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum NonEnigoAction {
     Sleep(u64),
-    SetButtonText(WhichButton),
+    SetButtonText(WhichButton, String),
     SetWheelColor(u8, u8, u8),
     ShowBanner(u8, String),
     ChangeWheel(ChangeRef),

@@ -30,15 +30,23 @@ on_double_click = [
   { ChangeWheel = "Previous" }
 ]
 
-[buttons.exit]
-on_click = [
-  { ChangeWheel = "Next" }
+[buttons.hola]
+on_press = [
+  { ShowBanner = [ 3, "Hola Mundo!" ] },
+  { SetButtonText = [ "Button0", "hola$0" ] },
+  { SetButtonText = [ "Button1", "hola$1" ] },
+  { SetButtonText = [ "Button2", "hola$2" ] },
+  { SetButtonText = [ "Button3", "hola$3" ] },
+  { SetButtonText = [ "Button4", "hola$4" ] },
+  { SetButtonText = [ "Button5", "hola$5" ] },
+  { SetButtonText = [ "Button6", "hola$6" ] },
+  { SetButtonText = [ "Button7", "hola$7" ] },
+  { Text = "Hello!" }
 ]
-on_double_click = [ { Key = [ { Unicode = "-" }, "Click" ] } ]
 
 
 [buttonsets.navigation]
-button1="exit"
+button1="hola"
 
 [profiles.niano.buttonsets]
 first="navigation"

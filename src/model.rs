@@ -6,20 +6,20 @@ use crate::config::Config;
 type Actions = Vec<Action>;
 
 #[derive(Debug)]
-struct LabeledButton<T> {
-    label: String,
-    button: Button<T>,
+pub struct LabeledButton<T> {
+    pub label: String,
+    pub button: Button<T>,
 }
 
 #[derive(Debug)]
 pub struct Profile {
-    buttonsets: IndexMap<ButtonSetId, ButtonSet<LabeledButton<Actions>, Button<Actions>>>,
-    wheels: IndexMap<WheelId, Wheel<Actions>>,
+    pub buttonsets: IndexMap<ButtonSetId, ButtonSet<LabeledButton<Actions>, Button<Actions>>>,
+    pub wheels: IndexMap<WheelId, Wheel<Actions>>,
 }
 
 #[derive(Debug)]
 pub struct Model {
-    profiles: IndexMap<ProfileId, Profile>,
+    pub profiles: IndexMap<ProfileId, Profile>,
 }
 
 fn clone_or_empty<T: Clone>(opt: &Option<Vec<T>>) -> Vec<T> {
