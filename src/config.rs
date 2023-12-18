@@ -11,12 +11,14 @@ type Actions = Option<Vec<Action>>;
 
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct Profile {
     pub buttonsets: Option<HashMap<String, ButtonSetId>>,
     pub wheels: Option<HashMap<String, WheelId>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     pub buttons: Option<HashMap<ButtonId, Button<Actions>>>,
     pub wheels: Option<HashMap<WheelId, Wheel<Actions>>>,

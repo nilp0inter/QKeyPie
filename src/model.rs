@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::actions::{Action, Wheel, ButtonSet, Button, WheelId, ButtonId, ButtonSetId, ProfileId, ButtonInteractionType, LowLevelButtonInteraction, HighLevelButtonInteraction};
+use crate::actions::{Action, Wheel, ButtonSet, Button, WheelId, ButtonId, ButtonSetId, ProfileId, LowLevelButton, HighLevelButton, LowLevelWheel, HighLevelWheel};
 use crate::config::Config;
 
 type Actions = Vec<Action>;
@@ -22,98 +22,122 @@ pub struct Model {
     profiles: HashMap<ProfileId, Profile>,
 }
 
-fn get_labeled_button_by_id(cfg: &Config, id: &ButtonId) -> anyhow::Result<LabeledButton<Actions>> {
+fn get_button_by_id(cfg: &Config, id: &ButtonId) -> anyhow::Result<Button<Actions>> {
     let cfg_button = cfg.buttons.as_ref().and_then(|buttons| buttons.get(id)).ok_or_else(|| anyhow::anyhow!("Button {} not found", id))?;
 
-    let button : LabeledButton<Actions> = LabeledButton {
-        label: "".to_string(),
-        button: Button {
-            interaction: match &cfg_button.interaction {
-                ButtonInteractionType::LowLevel(LowLevelButtonInteraction { on_press, on_release }) => ButtonInteractionType::LowLevel(LowLevelButtonInteraction {
-                    on_press: on_press.as_ref().unwrap_or(&vec![]).to_vec(),
-                    on_release: on_release.as_ref().unwrap_or(&vec![]).clone(),
-                }),
-                ButtonInteractionType::HighLevel(HighLevelButtonInteraction { on_click, on_double_click, on_triple_click, on_long_press }) => ButtonInteractionType::HighLevel(HighLevelButtonInteraction {
-                    on_click: on_click.as_ref().unwrap_or(&vec![]).clone(),
-                    on_double_click: on_double_click.as_ref().unwrap_or(&vec![]).clone(),
-                    on_triple_click: on_triple_click.as_ref().unwrap_or(&vec![]).clone(),
-                    on_long_press: on_long_press.as_ref().unwrap_or(&vec![]).clone(),
-                }),
-            },
-            on_show: cfg_button.on_show.as_ref().unwrap_or(&vec![]).clone(),
-            on_hide: cfg_button.on_hide.as_ref().unwrap_or(&vec![]).clone(),
-        },
+    let button = match &cfg_button {
+        Button::LowLevel(LowLevelButton { on_press, on_release, on_show, on_hide }) => Button::LowLevel(LowLevelButton {
+            on_press: on_press.as_ref().unwrap_or(&vec![]).to_vec(),
+            on_release: on_release.as_ref().unwrap_or(&vec![]).clone(),
+            on_show: on_show.as_ref().unwrap_or(&vec![]).clone(),
+            on_hide: on_hide.as_ref().unwrap_or(&vec![]).clone(),
+        }),
+        Button::HighLevel(HighLevelButton { on_click, on_double_click, on_triple_click, on_long_press, on_show, on_hide }) => Button::HighLevel(HighLevelButton {
+            on_click: on_click.as_ref().unwrap_or(&vec![]).clone(),
+            on_double_click: on_double_click.as_ref().unwrap_or(&vec![]).clone(),
+            on_triple_click: on_triple_click.as_ref().unwrap_or(&vec![]).clone(),
+            on_long_press: on_long_press.as_ref().unwrap_or(&vec![]).clone(),
+            on_show: on_show.as_ref().unwrap_or(&vec![]).clone(),
+            on_hide: on_hide.as_ref().unwrap_or(&vec![]).clone(),
+        }),
     };
-
     Ok(button)
 }
 
 fn get_labeled_button(cfg: &Config, id: &Option<ButtonId>) -> anyhow::Result<LabeledButton<Actions>> {
     match id {
-        Some(id) => get_labeled_button_by_id(cfg, &id.clone()),
+        Some(id) => Ok(LabeledButton {
+            label: "".to_string(),
+            button: get_button_by_id(cfg, id)?,
+        }),
         None => Ok(LabeledButton {
             label: "".to_string(),
-            button: Button {
-                interaction: ButtonInteractionType::LowLevel(LowLevelButtonInteraction {
-                    on_press: vec![],
-                    on_release: vec![],
-                }),
+            button: Button::LowLevel(LowLevelButton {
+                on_press: vec![],
+                on_release: vec![],
                 on_show: vec![],
                 on_hide: vec![],
-            },
+            }),
         }),
     }
-}
-
-fn get_button_by_id(cfg: &Config, id: &ButtonId) -> anyhow::Result<Button<Actions>> {
-    let cfg_button = cfg.buttons.as_ref().and_then(|buttons| buttons.get(id)).ok_or_else(|| anyhow::anyhow!("Button {} not found", id))?;
-
-    let button = Button {
-        interaction: match &cfg_button.interaction {
-            ButtonInteractionType::LowLevel(LowLevelButtonInteraction { on_press, on_release }) => ButtonInteractionType::LowLevel(LowLevelButtonInteraction {
-                on_press: on_press.as_ref().unwrap_or(&vec![]).to_vec(),
-                on_release: on_release.as_ref().unwrap_or(&vec![]).clone(),
-            }),
-            ButtonInteractionType::HighLevel(HighLevelButtonInteraction { on_click, on_double_click, on_triple_click, on_long_press }) => ButtonInteractionType::HighLevel(HighLevelButtonInteraction {
-                on_click: on_click.as_ref().unwrap_or(&vec![]).clone(),
-                on_double_click: on_double_click.as_ref().unwrap_or(&vec![]).clone(),
-                on_triple_click: on_triple_click.as_ref().unwrap_or(&vec![]).clone(),
-                on_long_press: on_long_press.as_ref().unwrap_or(&vec![]).clone(),
-            }),
-        },
-        on_show: cfg_button.on_show.as_ref().unwrap_or(&vec![]).clone(),
-        on_hide: cfg_button.on_hide.as_ref().unwrap_or(&vec![]).clone(),
-    };
-
-    Ok(button)
 }
 
 fn get_button(cfg: &Config, id: &Option<ButtonId>) -> anyhow::Result<Button<Actions>> {
     match id {
         Some(id) => get_button_by_id(cfg, id),
-        None => Ok(Button {
-            interaction: ButtonInteractionType::LowLevel(LowLevelButtonInteraction {
-                on_press: vec![],
-                on_release: vec![],
-            }),
+        None => Ok(Button::LowLevel(LowLevelButton {
+            on_press: vec![],
+            on_release: vec![],
             on_show: vec![],
             on_hide: vec![],
-        }),
+        })),
     }
 }
 
 fn get_wheel(cfg: &Config, id: &WheelId) -> anyhow::Result<Wheel<Actions>> {
     let cfg_wheel = cfg.wheels.as_ref().and_then(|wheels| wheels.get(id)).ok_or_else(|| anyhow::anyhow!("Wheel {} not found", id))?;
 
-    let wheel = Wheel {
-        on_clockwise: cfg_wheel.on_clockwise.as_ref().unwrap_or(&vec![]).clone(),
-        on_clockwise_start: cfg_wheel.on_clockwise_start.as_ref().unwrap_or(&vec![]).clone(),
-        on_clockwise_stop: cfg_wheel.on_clockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
-        on_counterclockwise: cfg_wheel.on_counterclockwise.as_ref().unwrap_or(&vec![]).clone(),
-        on_counterclockwise_start: cfg_wheel.on_counterclockwise_start.as_ref().unwrap_or(&vec![]).clone(),
-        on_counterclockwise_stop: cfg_wheel.on_counterclockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
-        on_show: cfg_wheel.on_show.as_ref().unwrap_or(&vec![]).clone(),
-        on_hide: cfg_wheel.on_hide.as_ref().unwrap_or(&vec![]).clone(),
+    // let wheel = Wheel {
+    //     on_clockwise: cfg_wheel.on_clockwise.as_ref().unwrap_or(&vec![]).clone(),
+    //     on_clockwise_start: cfg_wheel.on_clockwise_start.as_ref().unwrap_or(&vec![]).clone(),
+    //     on_clockwise_stop: cfg_wheel.on_clockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
+    //     on_counterclockwise: cfg_wheel.on_counterclockwise.as_ref().unwrap_or(&vec![]).clone(),
+    //     on_counterclockwise_start: cfg_wheel.on_counterclockwise_start.as_ref().unwrap_or(&vec![]).clone(),
+    //     on_counterclockwise_stop: cfg_wheel.on_counterclockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
+    //     on_show: cfg_wheel.on_show.as_ref().unwrap_or(&vec![]).clone(),
+    //     on_hide: cfg_wheel.on_hide.as_ref().unwrap_or(&vec![]).clone(),
+    // };
+    let wheel = match cfg_wheel {
+        Wheel::LowLevel(LowLevelWheel {
+            on_clockwise,
+            on_clockwise_start,
+            on_clockwise_stop,
+            on_counterclockwise,
+            on_counterclockwise_start,
+            on_counterclockwise_stop,
+            on_show,
+            on_hide,
+            on_press,
+            on_release,
+        }) => Wheel::LowLevel(LowLevelWheel {
+            on_clockwise: on_clockwise.as_ref().unwrap_or(&vec![]).clone(),
+            on_clockwise_start: on_clockwise_start.as_ref().unwrap_or(&vec![]).clone(),
+            on_clockwise_stop: on_clockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
+            on_counterclockwise: on_counterclockwise.as_ref().unwrap_or(&vec![]).clone(),
+            on_counterclockwise_start: on_counterclockwise_start.as_ref().unwrap_or(&vec![]).clone(),
+            on_counterclockwise_stop: on_counterclockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
+            on_show: on_show.as_ref().unwrap_or(&vec![]).clone(),
+            on_hide: on_hide.as_ref().unwrap_or(&vec![]).clone(),
+            on_press: on_press.as_ref().unwrap_or(&vec![]).clone(),
+            on_release: on_release.as_ref().unwrap_or(&vec![]).clone(),
+        }),
+        Wheel::HighLevel(HighLevelWheel {
+            on_clockwise,
+            on_clockwise_start,
+            on_clockwise_stop,
+            on_counterclockwise,
+            on_counterclockwise_start,
+            on_counterclockwise_stop,
+            on_show,
+            on_hide,
+            on_click,
+            on_double_click,
+            on_triple_click,
+            on_long_press,
+        }) => Wheel::HighLevel(HighLevelWheel {
+            on_clockwise: on_clockwise.as_ref().unwrap_or(&vec![]).clone(),
+            on_clockwise_start: on_clockwise_start.as_ref().unwrap_or(&vec![]).clone(),
+            on_clockwise_stop: on_clockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
+            on_counterclockwise: on_counterclockwise.as_ref().unwrap_or(&vec![]).clone(),
+            on_counterclockwise_start: on_counterclockwise_start.as_ref().unwrap_or(&vec![]).clone(),
+            on_counterclockwise_stop: on_counterclockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
+            on_show: on_show.as_ref().unwrap_or(&vec![]).clone(),
+            on_hide: on_hide.as_ref().unwrap_or(&vec![]).clone(),
+            on_click: on_click.as_ref().unwrap_or(&vec![]).clone(),
+            on_double_click: on_double_click.as_ref().unwrap_or(&vec![]).clone(),
+            on_triple_click: on_triple_click.as_ref().unwrap_or(&vec![]).clone(),
+            on_long_press: on_long_press.as_ref().unwrap_or(&vec![]).clone(),
+        }),
     };
 
     Ok(wheel)
