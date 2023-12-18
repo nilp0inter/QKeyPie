@@ -47,7 +47,7 @@ pub enum Action {
     NonEnigo(NonEnigoAction),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct LowLevelButton<T> {
     pub on_press: T,

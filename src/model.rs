@@ -22,23 +22,27 @@ pub struct Model {
     profiles: IndexMap<ProfileId, Profile>,
 }
 
+fn clone_or_empty<T: Clone>(opt: &Option<Vec<T>>) -> Vec<T> {
+    opt.clone().unwrap_or_else(Vec::new)
+}
+
 fn get_button_by_id(cfg: &Config, id: &ButtonId) -> anyhow::Result<Button<Actions>> {
     let cfg_button = cfg.buttons.as_ref().and_then(|buttons| buttons.get(id)).ok_or_else(|| anyhow::anyhow!("Button {} not found", id))?;
 
-    let button = match &cfg_button {
-        Button::LowLevel(LowLevelButton { on_press, on_release, on_show, on_hide }) => Button::LowLevel(LowLevelButton {
-            on_press: on_press.as_ref().unwrap_or(&vec![]).to_vec(),
-            on_release: on_release.as_ref().unwrap_or(&vec![]).clone(),
-            on_show: on_show.as_ref().unwrap_or(&vec![]).clone(),
-            on_hide: on_hide.as_ref().unwrap_or(&vec![]).clone(),
+    let button = match cfg_button {
+        Button::LowLevel(low_level_button) => Button::LowLevel(LowLevelButton {
+            on_press: clone_or_empty(&low_level_button.on_press),
+            on_release: clone_or_empty(&low_level_button.on_release),
+            on_show: clone_or_empty(&low_level_button.on_show),
+            on_hide: clone_or_empty(&low_level_button.on_hide),
         }),
-        Button::HighLevel(HighLevelButton { on_click, on_double_click, on_triple_click, on_long_press, on_show, on_hide }) => Button::HighLevel(HighLevelButton {
-            on_click: on_click.as_ref().unwrap_or(&vec![]).clone(),
-            on_double_click: on_double_click.as_ref().unwrap_or(&vec![]).clone(),
-            on_triple_click: on_triple_click.as_ref().unwrap_or(&vec![]).clone(),
-            on_long_press: on_long_press.as_ref().unwrap_or(&vec![]).clone(),
-            on_show: on_show.as_ref().unwrap_or(&vec![]).clone(),
-            on_hide: on_hide.as_ref().unwrap_or(&vec![]).clone(),
+        Button::HighLevel(high_level_button) => Button::HighLevel(HighLevelButton {
+            on_click: clone_or_empty(&high_level_button.on_click),
+            on_double_click: clone_or_empty(&high_level_button.on_double_click),
+            on_triple_click: clone_or_empty(&high_level_button.on_triple_click),
+            on_long_press: clone_or_empty(&high_level_button.on_long_press),
+            on_show: clone_or_empty(&high_level_button.on_show),
+            on_hide: clone_or_empty(&high_level_button.on_hide),
         }),
     };
     Ok(button)
@@ -52,12 +56,7 @@ fn get_labeled_button(cfg: &Config, id: &Option<ButtonId>) -> anyhow::Result<Lab
         }),
         None => Ok(LabeledButton {
             label: "".to_string(),
-            button: Button::LowLevel(LowLevelButton {
-                on_press: vec![],
-                on_release: vec![],
-                on_show: vec![],
-                on_hide: vec![],
-            }),
+            button: Button::LowLevel(LowLevelButton::default()),
         }),
     }
 }
@@ -65,78 +64,39 @@ fn get_labeled_button(cfg: &Config, id: &Option<ButtonId>) -> anyhow::Result<Lab
 fn get_button(cfg: &Config, id: &Option<ButtonId>) -> anyhow::Result<Button<Actions>> {
     match id {
         Some(id) => get_button_by_id(cfg, id),
-        None => Ok(Button::LowLevel(LowLevelButton {
-            on_press: vec![],
-            on_release: vec![],
-            on_show: vec![],
-            on_hide: vec![],
-        })),
+        None => Ok(Button::LowLevel(LowLevelButton::default())),
     }
 }
 
 fn get_wheel(cfg: &Config, id: &WheelId) -> anyhow::Result<Wheel<Actions>> {
     let cfg_wheel = cfg.wheels.as_ref().and_then(|wheels| wheels.get(id)).ok_or_else(|| anyhow::anyhow!("Wheel {} not found", id))?;
 
-    // let wheel = Wheel {
-    //     on_clockwise: cfg_wheel.on_clockwise.as_ref().unwrap_or(&vec![]).clone(),
-    //     on_clockwise_start: cfg_wheel.on_clockwise_start.as_ref().unwrap_or(&vec![]).clone(),
-    //     on_clockwise_stop: cfg_wheel.on_clockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
-    //     on_counterclockwise: cfg_wheel.on_counterclockwise.as_ref().unwrap_or(&vec![]).clone(),
-    //     on_counterclockwise_start: cfg_wheel.on_counterclockwise_start.as_ref().unwrap_or(&vec![]).clone(),
-    //     on_counterclockwise_stop: cfg_wheel.on_counterclockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
-    //     on_show: cfg_wheel.on_show.as_ref().unwrap_or(&vec![]).clone(),
-    //     on_hide: cfg_wheel.on_hide.as_ref().unwrap_or(&vec![]).clone(),
-    // };
     let wheel = match cfg_wheel {
-        Wheel::LowLevel(LowLevelWheel {
-            on_clockwise,
-            on_clockwise_start,
-            on_clockwise_stop,
-            on_counterclockwise,
-            on_counterclockwise_start,
-            on_counterclockwise_stop,
-            on_show,
-            on_hide,
-            on_press,
-            on_release,
-        }) => Wheel::LowLevel(LowLevelWheel {
-            on_clockwise: on_clockwise.as_ref().unwrap_or(&vec![]).clone(),
-            on_clockwise_start: on_clockwise_start.as_ref().unwrap_or(&vec![]).clone(),
-            on_clockwise_stop: on_clockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
-            on_counterclockwise: on_counterclockwise.as_ref().unwrap_or(&vec![]).clone(),
-            on_counterclockwise_start: on_counterclockwise_start.as_ref().unwrap_or(&vec![]).clone(),
-            on_counterclockwise_stop: on_counterclockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
-            on_show: on_show.as_ref().unwrap_or(&vec![]).clone(),
-            on_hide: on_hide.as_ref().unwrap_or(&vec![]).clone(),
-            on_press: on_press.as_ref().unwrap_or(&vec![]).clone(),
-            on_release: on_release.as_ref().unwrap_or(&vec![]).clone(),
+        Wheel::LowLevel(low_level_wheel) => Wheel::LowLevel(LowLevelWheel {
+            on_clockwise: clone_or_empty(&low_level_wheel.on_clockwise),
+            on_clockwise_start: clone_or_empty(&low_level_wheel.on_clockwise_start),
+            on_clockwise_stop: clone_or_empty(&low_level_wheel.on_clockwise_stop),
+            on_counterclockwise: clone_or_empty(&low_level_wheel.on_counterclockwise),
+            on_counterclockwise_start: clone_or_empty(&low_level_wheel.on_counterclockwise_start),
+            on_counterclockwise_stop: clone_or_empty(&low_level_wheel.on_counterclockwise_stop),
+            on_show: clone_or_empty(&low_level_wheel.on_show),
+            on_hide: clone_or_empty(&low_level_wheel.on_hide),
+            on_press: clone_or_empty(&low_level_wheel.on_press),
+            on_release: clone_or_empty(&low_level_wheel.on_release),
         }),
-        Wheel::HighLevel(HighLevelWheel {
-            on_clockwise,
-            on_clockwise_start,
-            on_clockwise_stop,
-            on_counterclockwise,
-            on_counterclockwise_start,
-            on_counterclockwise_stop,
-            on_show,
-            on_hide,
-            on_click,
-            on_double_click,
-            on_triple_click,
-            on_long_press,
-        }) => Wheel::HighLevel(HighLevelWheel {
-            on_clockwise: on_clockwise.as_ref().unwrap_or(&vec![]).clone(),
-            on_clockwise_start: on_clockwise_start.as_ref().unwrap_or(&vec![]).clone(),
-            on_clockwise_stop: on_clockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
-            on_counterclockwise: on_counterclockwise.as_ref().unwrap_or(&vec![]).clone(),
-            on_counterclockwise_start: on_counterclockwise_start.as_ref().unwrap_or(&vec![]).clone(),
-            on_counterclockwise_stop: on_counterclockwise_stop.as_ref().unwrap_or(&vec![]).clone(),
-            on_show: on_show.as_ref().unwrap_or(&vec![]).clone(),
-            on_hide: on_hide.as_ref().unwrap_or(&vec![]).clone(),
-            on_click: on_click.as_ref().unwrap_or(&vec![]).clone(),
-            on_double_click: on_double_click.as_ref().unwrap_or(&vec![]).clone(),
-            on_triple_click: on_triple_click.as_ref().unwrap_or(&vec![]).clone(),
-            on_long_press: on_long_press.as_ref().unwrap_or(&vec![]).clone(),
+        Wheel::HighLevel(high_level_wheel) => Wheel::HighLevel(HighLevelWheel {
+            on_clockwise: clone_or_empty(&high_level_wheel.on_clockwise),
+            on_clockwise_start: clone_or_empty(&high_level_wheel.on_clockwise_start),
+            on_clockwise_stop: clone_or_empty(&high_level_wheel.on_clockwise_stop),
+            on_counterclockwise: clone_or_empty(&high_level_wheel.on_counterclockwise),
+            on_counterclockwise_start: clone_or_empty(&high_level_wheel.on_counterclockwise_start),
+            on_counterclockwise_stop: clone_or_empty(&high_level_wheel.on_counterclockwise_stop),
+            on_show: clone_or_empty(&high_level_wheel.on_show),
+            on_hide: clone_or_empty(&high_level_wheel.on_hide),
+            on_click: clone_or_empty(&high_level_wheel.on_click),
+            on_double_click: clone_or_empty(&high_level_wheel.on_double_click),
+            on_triple_click: clone_or_empty(&high_level_wheel.on_triple_click),
+            on_long_press: clone_or_empty(&high_level_wheel.on_long_press),
         }),
     };
 
@@ -183,7 +143,6 @@ pub fn from_config(cfg: Config) -> anyhow::Result<Model> {
             wheels,
         });
     }
-
 
     Ok(Model {
         profiles,
