@@ -109,19 +109,34 @@ pub fn run(model: Model) -> anyhow::Result<()> {
     }
 }
 
+fn on_press_actions(button: Button<Vec<Action>>) -> Vec<Action> {
+    match button {
+        Button::LowLevel(LowLevelButton { on_press, .. }) => on_press,
+        Button::HighLevel(HighLevelButton { on_click, .. }) => on_click,
+    }
+}
+
 // fn run2(model: Model) -> anyhow::Result<()> {
 fn run2(model: Model, api: HidApi) -> anyhow::Result<()> {
     let (profile_name, profile) = model.profiles.first().ok_or(Error::msg("No profiles"))?;
     let (buttonset_name, buttonset) = profile.buttonsets.first().ok_or(Error::msg("No buttonsets"))?;
-    let button1 = buttonset.button1.button.clone();
+    let button_actions : [Vec<Action>; 8] = [
+        on_press_actions(buttonset.button1.button.clone()),
+        on_press_actions(buttonset.button2.button.clone()),
+        on_press_actions(buttonset.button3.button.clone()),
+        on_press_actions(buttonset.button4.button.clone()),
+        on_press_actions(buttonset.button5.button.clone()),
+        on_press_actions(buttonset.button6.button.clone()),
+        on_press_actions(buttonset.button7.button.clone()),
+        on_press_actions(buttonset.button8.button.clone()),
+    ];
     // println!("Hello, profile = {:?}", profile);
     // println!("Hello, buttonset = {:?}", buttonset);
     // println!("Hello, button1 = {:?}", button1);
-    let actions = match button1 {
-        Button::LowLevel(LowLevelButton { on_press, .. }) => on_press,
-        Button::HighLevel(HighLevelButton { on_click, .. }) => on_click,
-    };
-    println!("Hello, actions = {:?}", actions);
+    // let actions = match button1 {
+    //     Button::LowLevel(LowLevelButton { on_press, .. }) => on_press,
+    //     Button::HighLevel(HighLevelButton { on_click, .. }) => on_click,
+    // };
 
     match QKDevice::open(api, ConnectionMode::Auto) {
         Ok(dev) => {
@@ -129,7 +144,14 @@ fn run2(model: Model, api: HidApi) -> anyhow::Result<()> {
             loop {
                 match dev.read() {
                     Ok(ev) => match ev {
-                        Event::Button { state: ButtonState { button_0: true, .. } } => actions.iter().for_each(|action| eval(&dev, &action, Some(WhichButton::Button0))),
+                        Event::Button { state: ButtonState { button_0: true, .. } } => button_actions[0].iter().for_each(|action| eval(&dev, &action, Some(WhichButton::Button0))),
+                        Event::Button { state: ButtonState { button_1: true, .. } } => button_actions[1].iter().for_each(|action| eval(&dev, &action, Some(WhichButton::Button1))),
+                        Event::Button { state: ButtonState { button_2: true, .. } } => button_actions[2].iter().for_each(|action| eval(&dev, &action, Some(WhichButton::Button2))),
+                        Event::Button { state: ButtonState { button_3: true, .. } } => button_actions[3].iter().for_each(|action| eval(&dev, &action, Some(WhichButton::Button3))),
+                        Event::Button { state: ButtonState { button_4: true, .. } } => button_actions[4].iter().for_each(|action| eval(&dev, &action, Some(WhichButton::Button4))),
+                        Event::Button { state: ButtonState { button_5: true, .. } } => button_actions[5].iter().for_each(|action| eval(&dev, &action, Some(WhichButton::Button5))),
+                        Event::Button { state: ButtonState { button_6: true, .. } } => button_actions[6].iter().for_each(|action| eval(&dev, &action, Some(WhichButton::Button6))),
+                        Event::Button { state: ButtonState { button_7: true, .. } } => button_actions[7].iter().for_each(|action| eval(&dev, &action, Some(WhichButton::Button7))),
                         _ => (),
                     },
                     Err(e) => anyhow::bail!("error: {:?}", e),
