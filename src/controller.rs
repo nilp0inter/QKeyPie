@@ -75,24 +75,6 @@ fn eval(dev: &QKDevice, action: &Action, current_button: Option<WhichButton>) ->
 
 
 pub fn run(model: Model) -> anyhow::Result<()> {
-    match HidApi::new() {
-        Ok(api) => match run2(model, api) {
-            Ok(_) => { println!("all good"); Ok(())}
-            Err(e) => anyhow::bail!("error: {:?}", e),
-        },
-        Err(e) => anyhow::bail!("error: {:?}", e),
-    }
-}
-
-fn on_press_actions(button: Button<Vec<Action>>) -> Vec<Action> {
-    match button {
-        Button::LowLevel(LowLevelButton { on_press, .. }) => on_press,
-        Button::HighLevel(HighLevelButton { on_click, .. }) => on_click,
-    }
-}
-
-// fn run2(model: Model) -> anyhow::Result<()> {
-fn run2(model: Model, api: HidApi) -> anyhow::Result<()> {
     let (_, profile) = model.profiles.first().ok_or(Error::msg("No profiles"))?;
     let (_, buttonset) = profile.buttonsets.first().ok_or(Error::msg("No buttonsets"))?;
     let button_actions : [Vec<Action>; 8] = [
@@ -106,35 +88,32 @@ fn run2(model: Model, api: HidApi) -> anyhow::Result<()> {
         on_press_actions(buttonset.button8.button.clone()),
     ];
 
-    match QKDevice::open(api, ConnectionMode::Auto) {
-        Ok(dev) => {
-            match dev.set_screen_orientation(ScreenOrientation::Rotate180) {
-                Ok(_) => (),
-                Err(e) => anyhow::bail!("error: {:?}", e),
-            }
-            loop {
-                match dev.read() {
-                    Ok(ev) => {
-                        let res = match ev {
-                            Event::Button { state: ButtonState { button_0: true, .. } } => button_actions[0].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button0))),
-                            Event::Button { state: ButtonState { button_1: true, .. } } => button_actions[1].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button1))),
-                            Event::Button { state: ButtonState { button_2: true, .. } } => button_actions[2].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button2))),
-                            Event::Button { state: ButtonState { button_3: true, .. } } => button_actions[3].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button3))),
-                            Event::Button { state: ButtonState { button_4: true, .. } } => button_actions[4].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button4))),
-                            Event::Button { state: ButtonState { button_5: true, .. } } => button_actions[5].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button5))),
-                            Event::Button { state: ButtonState { button_6: true, .. } } => button_actions[6].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button6))),
-                            Event::Button { state: ButtonState { button_7: true, .. } } => button_actions[7].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button7))),
-                            _ => Ok(()),
-                        };
-                        match res {
-                            Ok(_) => (),
-                            Err(e) => anyhow::bail!("error: {:?}", e),
-                        }
-                    },
-                    Err(e) => anyhow::bail!("error: {:?}", e),
-                };
-            }
-        },
-        Err(e) => { println!("Connection error!"); anyhow::bail!("error: {:?}", e) },
-    };
+    let api = HidApi::new()?;
+    let dev = QKDevice::open(api, ConnectionMode::Auto)?;
+    dev.set_screen_orientation(ScreenOrientation::Rotate180)?; 
+    loop {
+        let ev = dev.read_timeout(1000)?;
+        match ev {
+            Event::Button { state: ButtonState { button_0: true, .. } } => button_actions[0].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button0))),
+            Event::Button { state: ButtonState { button_1: true, .. } } => button_actions[1].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button1))),
+            Event::Button { state: ButtonState { button_2: true, .. } } => button_actions[2].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button2))),
+            Event::Button { state: ButtonState { button_3: true, .. } } => button_actions[3].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button3))),
+            Event::Button { state: ButtonState { button_4: true, .. } } => button_actions[4].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button4))),
+            Event::Button { state: ButtonState { button_5: true, .. } } => button_actions[5].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button5))),
+            Event::Button { state: ButtonState { button_6: true, .. } } => button_actions[6].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button6))),
+            Event::Button { state: ButtonState { button_7: true, .. } } => button_actions[7].iter().try_for_each(|action| eval(&dev, &action, Some(WhichButton::Button7))),
+            Event::Unknown{ .. } => Ok(()),
+            e => {
+                println!("Ignoring event {:?}", e);
+                Ok(())
+            },
+        }?;
+    }
+}
+
+fn on_press_actions(button: Button<Vec<Action>>) -> Vec<Action> {
+    match button {
+        Button::LowLevel(LowLevelButton { on_press, .. }) => on_press,
+        Button::HighLevel(HighLevelButton { on_click, .. }) => on_click,
+    }
 }
