@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use enigo::agent;
 
 use serde::Serialize;
@@ -37,6 +39,7 @@ pub enum NonEnigoAction {
     SetButtonText(WhichButton, String),
     SetWheelColor(u8, u8, u8),
     ShowBanner(u8, String),
+    ChangeProfile(ChangeRef),
     ChangeWheel(ChangeRef),
     ChangeButtonSet(ChangeRef),
 }
@@ -117,6 +120,7 @@ pub enum Wheel<T> {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ButtonSet<T1, T2> {
+    pub button0: T1,
     pub button1: T1,
     pub button2: T1,
     pub button3: T1,
@@ -124,6 +128,23 @@ pub struct ButtonSet<T1, T2> {
     pub button5: T1,
     pub button6: T1,
     pub button7: T1,
-    pub button8: T1,
-    pub button9: T2,
+    pub button_extra: T2,
 }
+
+impl<T1, T2> Default for ButtonSet<T1, T2>
+where T1: Default, T2: Default {
+    fn default() -> Self {
+        ButtonSet {
+            button0: Default::default(),
+            button1: Default::default(),
+            button2: Default::default(),
+            button3: Default::default(),
+            button4: Default::default(),
+            button5: Default::default(),
+            button6: Default::default(),
+            button7: Default::default(),
+            button_extra: Default::default(),
+        }
+    }
+}
+

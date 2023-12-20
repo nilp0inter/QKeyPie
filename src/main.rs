@@ -3,6 +3,7 @@ mod actions;
 mod model;
 mod controller;
 mod events;
+mod state;
 
 fn main() -> anyhow::Result<()> {
     let cfg = config::read_config("config.toml")?;

@@ -107,6 +107,7 @@ fn get_buttonset(cfg: &Config, id: &ButtonSetId) -> anyhow::Result<ButtonSet<Lab
     let cfg_buttonset = cfg.buttonsets.as_ref().and_then(|buttonsets| buttonsets.get(id)).ok_or_else(|| anyhow::anyhow!("Buttonset {} not found", id))?;
 
     let buttonset = ButtonSet {
+        button0: get_labeled_button(cfg, &cfg_buttonset.button0)?,
         button1: get_labeled_button(cfg, &cfg_buttonset.button1)?,
         button2: get_labeled_button(cfg, &cfg_buttonset.button2)?,
         button3: get_labeled_button(cfg, &cfg_buttonset.button3)?,
@@ -114,8 +115,7 @@ fn get_buttonset(cfg: &Config, id: &ButtonSetId) -> anyhow::Result<ButtonSet<Lab
         button5: get_labeled_button(cfg, &cfg_buttonset.button5)?,
         button6: get_labeled_button(cfg, &cfg_buttonset.button6)?,
         button7: get_labeled_button(cfg, &cfg_buttonset.button7)?,
-        button8: get_labeled_button(cfg, &cfg_buttonset.button8)?,
-        button9: get_button(cfg, &cfg_buttonset.button9)?,
+        button_extra: get_button(cfg, &cfg_buttonset.button_extra)?,
     };
 
     Ok(buttonset)

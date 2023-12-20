@@ -7,11 +7,9 @@ use enigo::{
     Enigo, Settings,
 };
 
-use anyhow::Error;
-
 use crate::model::Model;
 use crate::actions::{Action, LowLevelButton, HighLevelButton, Button, NonEnigoAction, WhichButton, ButtonSet};
-use crate::events;
+use crate::state;
 
 // fn eval(action: &Action) {
 fn eval(dev: &QKDevice, action: &Action, current_button: Option<WhichButton>) -> anyhow::Result<()> {
@@ -76,36 +74,37 @@ fn eval(dev: &QKDevice, action: &Action, current_button: Option<WhichButton>) ->
 
 
 pub fn run(model: Model) -> anyhow::Result<()> {
-    let mut states : ButtonSet<events::ClickStateMachine, events::ClickStateMachine> = ButtonSet {
-        button1: events::ClickStateMachine::Idle,
-        button2: events::ClickStateMachine::Idle,
-        button3: events::ClickStateMachine::Idle,
-        button4: events::ClickStateMachine::Idle,
-        button5: events::ClickStateMachine::Idle,
-        button6: events::ClickStateMachine::Idle,
-        button7: events::ClickStateMachine::Idle,
-        button8: events::ClickStateMachine::Idle,
-        button9: events::ClickStateMachine::Idle,
-    };
+    let mut state = state::State::new(model)?;
+    // let mut states : ButtonSet<events::ClickStateMachine, events::ClickStateMachine> = ButtonSet {
+    //     button1: events::ClickStateMachine::Idle,
+    //     button2: events::ClickStateMachine::Idle,
+    //     button3: events::ClickStateMachine::Idle,
+    //     button4: events::ClickStateMachine::Idle,
+    //     button5: events::ClickStateMachine::Idle,
+    //     button6: events::ClickStateMachine::Idle,
+    //     button7: events::ClickStateMachine::Idle,
+    //     button8: events::ClickStateMachine::Idle,
+    //     button9: events::ClickStateMachine::Idle,
+    // };
     let mut last_state : Option<ButtonState> = None;
-    let (_, profile) = model.profiles.first().ok_or(Error::msg("No profiles"))?;
-    let (_, buttonset) = profile.buttonsets.first().ok_or(Error::msg("No buttonsets"))?;
-    let button_actions : [Vec<Action>; 8] = [
-        on_press_actions(buttonset.button1.button.clone()),
-        on_press_actions(buttonset.button2.button.clone()),
-        on_press_actions(buttonset.button3.button.clone()),
-        on_press_actions(buttonset.button4.button.clone()),
-        on_press_actions(buttonset.button5.button.clone()),
-        on_press_actions(buttonset.button6.button.clone()),
-        on_press_actions(buttonset.button7.button.clone()),
-        on_press_actions(buttonset.button8.button.clone()),
-    ];
+    // let (_, profile) = model.profiles.first().ok_or(Error::msg("No profiles"))?;
+    // let (_, buttonset) = profile.buttonsets.first().ok_or(Error::msg("No buttonsets"))?;
+    // let button_actions : [Vec<Action>; 8] = [
+    //     on_press_actions(buttonset.button1.button.clone()),
+    //     on_press_actions(buttonset.button2.button.clone()),
+    //     on_press_actions(buttonset.button3.button.clone()),
+    //     on_press_actions(buttonset.button4.button.clone()),
+    //     on_press_actions(buttonset.button5.button.clone()),
+    //     on_press_actions(buttonset.button6.button.clone()),
+    //     on_press_actions(buttonset.button7.button.clone()),
+    //     on_press_actions(buttonset.button8.button.clone()),
+    // ];
 
     let api = HidApi::new()?;
     let dev = QKDevice::open(api, ConnectionMode::Auto)?;
     dev.set_screen_orientation(ScreenOrientation::Rotate180)?; 
     loop {
-        let ev = dev.read_timeout(50)?;
+        let ev = dev.read_timeout(300)?;
         match ev {
             Event::Button { state: button_state } => {
                 last_state = Some(button_state.clone());
@@ -117,18 +116,20 @@ pub fn run(model: Model) -> anyhow::Result<()> {
                 println!("Ignoring event {:?}", ev);
             },
         }
+        let states = &mut state.button_state;
         if let Some(ref bstate) = last_state {
             let now = time::Instant::now();
-            let (button1_new_state, button1_events) = events::transition(states.button1, bstate.button_0.into(), now);
-            let (button2_new_state, button2_events) = events::transition(states.button2, bstate.button_1.into(), now);
-            let (button3_new_state, button3_events) = events::transition(states.button3, bstate.button_2.into(), now);
-            let (button4_new_state, button4_events) = events::transition(states.button4, bstate.button_3.into(), now);
-            let (button5_new_state, button5_events) = events::transition(states.button5, bstate.button_4.into(), now);
-            let (button6_new_state, button6_events) = events::transition(states.button6, bstate.button_5.into(), now);
-            let (button7_new_state, button7_events) = events::transition(states.button7, bstate.button_6.into(), now);
-            let (button8_new_state, button8_events) = events::transition(states.button8, bstate.button_7.into(), now);
-            let (button9_new_state, button9_events) = events::transition(states.button9, bstate.button_extra.into(), now);
-            states = ButtonSet {
+            let (button0_new_state, button0_events) = states.button0.transition(bstate.button_0.into(), now);
+            let (button1_new_state, button1_events) = states.button1.transition(bstate.button_1.into(), now);
+            let (button2_new_state, button2_events) = states.button2.transition(bstate.button_2.into(), now);
+            let (button3_new_state, button3_events) = states.button3.transition(bstate.button_3.into(), now);
+            let (button4_new_state, button4_events) = states.button4.transition(bstate.button_4.into(), now);
+            let (button5_new_state, button5_events) = states.button5.transition(bstate.button_5.into(), now);
+            let (button6_new_state, button6_events) = states.button6.transition(bstate.button_6.into(), now);
+            let (button7_new_state, button7_events) = states.button7.transition(bstate.button_7.into(), now);
+            let (button_extra_new_state, button_extra_events) = states.button_extra.transition(bstate.button_extra.into(), now);
+            state.button_state = ButtonSet {
+                button0: button0_new_state,
                 button1: button1_new_state,
                 button2: button2_new_state,
                 button3: button3_new_state,
@@ -136,9 +137,11 @@ pub fn run(model: Model) -> anyhow::Result<()> {
                 button5: button5_new_state,
                 button6: button6_new_state,
                 button7: button7_new_state,
-                button8: button8_new_state,
-                button9: button9_new_state,
+                button_extra: button_extra_new_state,
             };
+            if !button0_events.is_empty() {
+                println!("Button 0 events: {:?}", button0_events);
+            }
             if !button1_events.is_empty() {
                 println!("Button 1 events: {:?}", button1_events);
             }
@@ -160,11 +163,8 @@ pub fn run(model: Model) -> anyhow::Result<()> {
             if !button7_events.is_empty() {
                 println!("Button 7 events: {:?}", button7_events);
             }
-            if !button8_events.is_empty() {
-                println!("Button 8 events: {:?}", button8_events);
-            }
-            if !button9_events.is_empty() {
-                println!("Button 9 events: {:?}", button9_events);
+            if !button_extra_events.is_empty() {
+                println!("Button Extra events: {:?}", button_extra_events);
             }
         }
 
