@@ -1,10 +1,6 @@
 [wheels]
 
 [wheels.zoom]
-on_show = [
-  { SetWheelColor = [ 255, 0, 0 ] },
-  { ShowBanner = [ 2, "Zoom" ] }
-]
 on_clockwise_start = [
   { Key = [ "Control", "Press" ] },
 ]

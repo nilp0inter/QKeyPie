@@ -54,70 +54,28 @@ pub enum Action {
     NonEnigo(NonEnigoAction),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
-#[serde(deny_unknown_fields)]
-pub struct LowLevelButton<T> {
-    pub on_press: T,
-    pub on_release: T,
-    pub on_show: T,
-    pub on_hide: T,
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct HighLevelButton<T> {
+pub struct ButtonCallback<T> {
     pub on_click: T,
     pub on_double_click: T,
     pub on_triple_click: T,
     pub on_long_press: T,
-    pub on_show: T,
-    pub on_hide: T,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(untagged)]
-pub enum Button<T> {
-    LowLevel(LowLevelButton<T>),
-    HighLevel(HighLevelButton<T>),
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(deny_unknown_fields)]
-pub struct LowLevelWheel<T> {
-    pub on_clockwise: T,
-    pub on_clockwise_start: T,
-    pub on_clockwise_stop: T,
-    pub on_counterclockwise: T,
-    pub on_counterclockwise_start: T,
-    pub on_counterclockwise_stop: T,
-    pub on_show: T,
-    pub on_hide: T,
     pub on_press: T,
     pub on_release: T,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct HighLevelWheel<T> {
+pub struct WheelCallback<T> {
     pub on_clockwise: T,
     pub on_clockwise_start: T,
     pub on_clockwise_stop: T,
     pub on_counterclockwise: T,
     pub on_counterclockwise_start: T,
     pub on_counterclockwise_stop: T,
-    pub on_show: T,
-    pub on_hide: T,
-    pub on_click: T,
-    pub on_double_click: T,
-    pub on_triple_click: T,
-    pub on_long_press: T,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(untagged)]
-pub enum Wheel<T> {
-    LowLevel(LowLevelWheel<T>),
-    HighLevel(HighLevelWheel<T>),
+    #[serde(flatten)]
+    pub button: ButtonCallback<T>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -132,6 +90,13 @@ pub struct ButtonSet<T1, T2> {
     pub button6: T1,
     pub button7: T1,
     pub button_extra: T2,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct WheelSet<T1, T2> {
+    pub wheel: T1,
+    pub center_button: T2,
 }
 
 impl<T1, T2> Default for ButtonSet<T1, T2>
@@ -199,5 +164,18 @@ impl ButtonSet<events::ClickStateMachine, events::ClickStateMachine> {
             button7: button7_events,
             button_extra: button_extra_events,
         })
+    }
+}
+
+impl Default for ButtonCallback<Vec<Action>> {
+    fn default() -> Self {
+        ButtonCallback {
+            on_click: vec![],
+            on_double_click: vec![],
+            on_triple_click: vec![],
+            on_long_press: vec![],
+            on_press: vec![],
+            on_release: vec![],
+        }
     }
 }

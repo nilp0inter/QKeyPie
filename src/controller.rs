@@ -8,7 +8,7 @@ use enigo::{
 };
 
 use crate::model::Model;
-use crate::actions::{Action, LowLevelButton, HighLevelButton, Button, NonEnigoAction, WhichButton, ButtonSet};
+use crate::actions::{Action, ButtonCallback, NonEnigoAction, WhichButton, ButtonSet};
 use crate::state;
 
 // fn eval(action: &Action) {
@@ -168,9 +168,9 @@ pub fn run(model: Model) -> anyhow::Result<()> {
     }
 }
 
-fn on_press_actions(button: Button<Vec<Action>>) -> Vec<Action> {
-    match button {
-        Button::LowLevel(LowLevelButton { on_press, .. }) => on_press,
-        Button::HighLevel(HighLevelButton { on_click, .. }) => on_click,
-    }
-}
+// fn on_press_actions(button: ButtonCallback<Vec<Action>>) -> Vec<Action> {
+//     match button {
+//         ButtonCallback::LowLevel(LowLevelButton { on_press, .. }) => on_press,
+//         ButtonCallback::HighLevel(HighLevelButton { on_click, .. }) => on_click,
+//     }
+// }
