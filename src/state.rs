@@ -12,7 +12,7 @@ pub struct State {
     pub current_wheel_id: String,
     pub current_wheel_index: usize,
     pub model: Model,
-    pub button_state: actions::ButtonSet<events::ButtonStateMachine, events::ButtonStateMachine>,
+    pub button_state: actions::ButtonSet<events::ButtonStateMachine>,
     pub wheel_state: actions::WheelSet<events::WheelStateMachine, events::ButtonStateMachine>,
 }
 

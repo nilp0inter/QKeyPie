@@ -81,16 +81,16 @@ pub struct WheelCallback<T> {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct ButtonSet<T1, T2> {
-    pub button0: T1,
-    pub button1: T1,
-    pub button2: T1,
-    pub button3: T1,
-    pub button4: T1,
-    pub button5: T1,
-    pub button6: T1,
-    pub button7: T1,
-    pub button_extra: T2,
+pub struct ButtonSet<T> {
+    pub button0: T,
+    pub button1: T,
+    pub button2: T,
+    pub button3: T,
+    pub button4: T,
+    pub button5: T,
+    pub button6: T,
+    pub button7: T,
+    pub button_extra: T,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -100,8 +100,8 @@ pub struct WheelSet<T1, T2> {
     pub wheel_button: T2,
 }
 
-impl<T1, T2> Default for ButtonSet<T1, T2>
-where T1: Default, T2: Default {
+impl<T> Default for ButtonSet<T>
+where T: Default {
     fn default() -> Self {
         ButtonSet {
             button0: Default::default(),
@@ -127,7 +127,7 @@ where T1: Default, T2: Default {
     }
 }
 
-impl From<xencelabs_quick_keys::ButtonState> for ButtonSet<events::ButtonState, events::ButtonState> {
+impl From<xencelabs_quick_keys::ButtonState> for ButtonSet<events::ButtonState> {
     fn from(b: xencelabs_quick_keys::ButtonState) -> Self {
         ButtonSet {
             button0: b.button_0.into(),
@@ -143,7 +143,7 @@ impl From<xencelabs_quick_keys::ButtonState> for ButtonSet<events::ButtonState, 
     }
 }
 
-impl From<xencelabs_quick_keys::Event> for ButtonSet<events::ButtonState, events::ButtonState> {
+impl From<xencelabs_quick_keys::Event> for ButtonSet<events::ButtonState> {
     fn from(b: xencelabs_quick_keys::Event) -> Self {
         match b {
             xencelabs_quick_keys::Event::Button { state } => state.into(),
@@ -184,8 +184,8 @@ impl From<xencelabs_quick_keys::Event> for WheelSet<events::WheelState, events::
     }
 }
 
-impl ButtonSet<events::ButtonStateMachine, events::ButtonStateMachine> {
-    pub fn transition(&self, event: ButtonSet<events::ButtonState, events::ButtonState>, when: Instant) -> (Self, ButtonSet<Vec<events::ButtonEvent>, Vec<events::ButtonEvent>>) {
+impl ButtonSet<events::ButtonStateMachine> {
+    pub fn transition(&self, event: ButtonSet<events::ButtonState>, when: Instant) -> (Self, ButtonSet<Vec<events::ButtonEvent>>) {
         let (button0_new_state, button0_events) = self.button0.transition(event.button0, when);
         let (button1_new_state, button1_events) = self.button1.transition(event.button1, when);
         let (button2_new_state, button2_events) = self.button2.transition(event.button2, when);

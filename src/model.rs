@@ -6,14 +6,8 @@ use crate::config::Config;
 type Actions = Vec<Action>;
 
 #[derive(Debug)]
-pub struct LabeledButton<T> {
-    pub label: String,
-    pub button: ButtonCallback<T>,
-}
-
-#[derive(Debug)]
 pub struct Profile {
-    pub buttonsets: IndexMap<ButtonSetId, ButtonSet<LabeledButton<Actions>, ButtonCallback<Actions>>>,
+    pub buttonsets: IndexMap<ButtonSetId, ButtonSet<ButtonCallback<Actions>>>,
     pub wheels: IndexMap<WheelId, WheelCallback<Actions>>,
 }
 
@@ -38,19 +32,6 @@ fn get_button_by_id(cfg: &Config, id: &ButtonId) -> anyhow::Result<ButtonCallbac
         on_release: clone_or_empty(&cfg_button.on_release),
     };
     Ok(button)
-}
-
-fn get_labeled_button(cfg: &Config, id: &Option<ButtonId>) -> anyhow::Result<LabeledButton<Actions>> {
-    match id {
-        Some(id) => Ok(LabeledButton {
-            label: "".to_string(),
-            button: get_button_by_id(cfg, id)?,
-        }),
-        None => Ok(LabeledButton {
-            label: "".to_string(),
-            button: ButtonCallback::default(),
-        }),
-    }
 }
 
 fn get_button(cfg: &Config, id: &Option<ButtonId>) -> anyhow::Result<ButtonCallback<Actions>> {
@@ -83,18 +64,18 @@ fn get_wheel(cfg: &Config, id: &WheelId) -> anyhow::Result<WheelCallback<Actions
     Ok(wheel)
 }
 
-fn get_buttonset(cfg: &Config, id: &ButtonSetId) -> anyhow::Result<ButtonSet<LabeledButton<Actions>, ButtonCallback<Actions>>> {
+fn get_buttonset(cfg: &Config, id: &ButtonSetId) -> anyhow::Result<ButtonSet<ButtonCallback<Actions>>> {
     let cfg_buttonset = cfg.buttonsets.as_ref().and_then(|buttonsets| buttonsets.get(id)).ok_or_else(|| anyhow::anyhow!("Buttonset {} not found", id))?;
 
     let buttonset = ButtonSet {
-        button0: get_labeled_button(cfg, &cfg_buttonset.button0)?,
-        button1: get_labeled_button(cfg, &cfg_buttonset.button1)?,
-        button2: get_labeled_button(cfg, &cfg_buttonset.button2)?,
-        button3: get_labeled_button(cfg, &cfg_buttonset.button3)?,
-        button4: get_labeled_button(cfg, &cfg_buttonset.button4)?,
-        button5: get_labeled_button(cfg, &cfg_buttonset.button5)?,
-        button6: get_labeled_button(cfg, &cfg_buttonset.button6)?,
-        button7: get_labeled_button(cfg, &cfg_buttonset.button7)?,
+        button0: get_button(cfg, &cfg_buttonset.button0)?,
+        button1: get_button(cfg, &cfg_buttonset.button1)?,
+        button2: get_button(cfg, &cfg_buttonset.button2)?,
+        button3: get_button(cfg, &cfg_buttonset.button3)?,
+        button4: get_button(cfg, &cfg_buttonset.button4)?,
+        button5: get_button(cfg, &cfg_buttonset.button5)?,
+        button6: get_button(cfg, &cfg_buttonset.button6)?,
+        button7: get_button(cfg, &cfg_buttonset.button7)?,
         button_extra: get_button(cfg, &cfg_buttonset.button_extra)?,
     };
 

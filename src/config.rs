@@ -22,7 +22,7 @@ pub struct Profile {
 pub struct Config {
     pub buttons: Option<IndexMap<ButtonId, ButtonCallback<Actions>>>,
     pub wheels: Option<IndexMap<WheelId, WheelCallback<Actions>>>,
-    pub buttonsets: Option<IndexMap<ButtonSetId, ButtonSet<Option<ButtonSetId>, Option<ButtonSetId>>>>,
+    pub buttonsets: Option<IndexMap<ButtonSetId, ButtonSet<Option<ButtonSetId>>>>,
     pub profiles: Option<IndexMap<ProfileId, Profile>>,
 }
 

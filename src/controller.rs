@@ -161,7 +161,7 @@ pub fn run(model: Model) -> anyhow::Result<()> {
     dev.set_screen_orientation(ScreenOrientation::Rotate180)?; 
     loop {
         let ev = dev.read_timeout(300)?;
-        let buttonset_event : ButtonSet<ButtonState, ButtonState> = ev.clone().into();
+        let buttonset_event : ButtonSet<ButtonState> = ev.clone().into();
         let wheel_event : WheelSet<WheelState, ButtonState> = ev.clone().into();
 
         let now = time::Instant::now();
@@ -172,35 +172,35 @@ pub fn run(model: Model) -> anyhow::Result<()> {
         state.wheel_state = new_wheel_state;
 
         for event in buttonset_events.button0 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button0.button.clone();
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button0.clone();
             process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button0)?;
         }
         for event in buttonset_events.button1 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button1.button.clone();
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button1.clone();
             process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button1)?;
         }
         for event in buttonset_events.button2 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button2.button.clone();
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button2.clone();
             process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button2)?;
         }
         for event in buttonset_events.button3 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button3.button.clone();
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button3.clone();
             process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button3)?;
         }
         for event in buttonset_events.button4 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button4.button.clone();
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button4.clone();
             process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button4)?;
         }
         for event in buttonset_events.button5 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button5.button.clone();
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button5.clone();
             process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button5)?;
         }
         for event in buttonset_events.button6 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button6.button.clone();
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button6.clone();
             process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button6)?;
         }
         for event in buttonset_events.button7 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button7.button.clone();
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button7.clone();
             process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button7)?;
         }
         for event in buttonset_events.button_extra {
