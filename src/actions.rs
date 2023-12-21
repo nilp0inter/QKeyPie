@@ -25,6 +25,7 @@ pub enum WhichButton {
     Button6,
     Button7,
     ButtonExtra,
+    WheelButton,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

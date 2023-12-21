@@ -25,9 +25,13 @@ on_click = [
 on_double_click = [
   { ChangeWheel = "Previous" }
 ]
+on_long_press = [
+  { SetWheelColor = [ 255, 0, 0 ] }
+]
+
 
 [buttons.hola]
-on_press = [
+on_double_click = [
   # { ShowBanner = [ 3, "Hola Mundo!" ] },
   { SetButtonText = [ "Button0", "hola$0" ] },
   { SetButtonText = [ "Button1", "hola$1" ] },
@@ -55,13 +59,12 @@ on_press = [
 
 
 [buttonsets.navigation]
-button1="hola"
-button2="adios"
+button0="hola"
+button_extra="adios"
 
 [profiles.niano.buttonsets]
 first="navigation"
 
 [profiles.niano.wheels]
-
 zoom="zoom"
 

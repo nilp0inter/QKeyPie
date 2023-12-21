@@ -1,77 +1,156 @@
 use xencelabs_quick_keys::{QKDevice, ConnectionMode, ScreenOrientation };
 
 use hidapi::HidApi;
-use std::time;
-// use enigo::{
-//     agent::Agent,
-//     Enigo, Settings,
-// };
+use std::{time, thread};
+use enigo::{
+    agent::Agent,
+    Enigo, Settings,
+};
 
 use crate::model::Model;
-// use crate::actions::{Action, NonEnigoAction, WhichButton};
-use crate::actions::{ButtonSet, WheelSet};
-use crate::events::{ButtonState, WheelState};
+use crate::actions::{Action, NonEnigoAction, WhichButton};
+use crate::actions::{ButtonSet, WheelSet, ButtonCallback, WheelCallback};
+use crate::events::{ButtonState, WheelState, ButtonEvent, WheelEvent};
 use crate::state;
 
-// fn eval(dev: &QKDevice, action: &Action, current_button: Option<WhichButton>) -> anyhow::Result<()> {
-//     let mut enigo = Enigo::new(&Settings::default()).unwrap_or_else(|e| panic!("Failed to create enigo: {:?}", e));
-//     match action {
-//         Action::NonEnigo(NonEnigoAction::Sleep(millis)) => {
-//             thread::sleep(time::Duration::from_millis(*millis));
-//             Ok(())
-//         },
-//         Action::NonEnigo(NonEnigoAction::SetButtonText(wb, txt)) => {
-//             let res = match wb {
-//                 WhichButton::Button0 => dev.set_key_text(0, txt),
-//                 WhichButton::Button1 => dev.set_key_text(1, txt),
-//                 WhichButton::Button2 => dev.set_key_text(2, txt),
-//                 WhichButton::Button3 => dev.set_key_text(3, txt),
-//                 WhichButton::Button4 => dev.set_key_text(4, txt),
-//                 WhichButton::Button5 => dev.set_key_text(5, txt),
-//                 WhichButton::Button6 => dev.set_key_text(6, txt),
-//                 WhichButton::Button7 => dev.set_key_text(7, txt),
-//                 WhichButton::ThisButton => match current_button {
-//                     Some(WhichButton::Button0) => dev.set_key_text(0, txt),
-//                     Some(WhichButton::Button1) => dev.set_key_text(1, txt),
-//                     Some(WhichButton::Button2) => dev.set_key_text(2, txt),
-//                     Some(WhichButton::Button3) => dev.set_key_text(3, txt),
-//                     Some(WhichButton::Button4) => dev.set_key_text(4, txt),
-//                     Some(WhichButton::Button5) => dev.set_key_text(5, txt),
-//                     Some(WhichButton::Button6) => dev.set_key_text(6, txt),
-//                     Some(WhichButton::Button7) => dev.set_key_text(7, txt),
-//                     _ => Ok(()),
-//                 },
-//                 _ => Ok(()),
-//             };
-//             match res {
-//                 Ok(_) => Ok(()),
-//                 Err(e) => anyhow::bail!("error: {:?}", e),
-//             }
-//         },
-//         Action::NonEnigo(NonEnigoAction::SetWheelColor(r, g, b)) => {
-//             match dev.set_ring_color(*r, *g, *b) {
-//                 Ok(_) => Ok(()),
-//                 Err(e) => anyhow::bail!("error: {:?}", e),
-//             }
-//         },
-//         Action::NonEnigo(NonEnigoAction::ShowBanner(seconds, txt)) => {
-//             match dev.show_overlay_text(txt, *seconds) {
-//                 Ok(_) => Ok(()),
-//                 Err(e) => anyhow::bail!("error: {:?}", e),
-//             }
-//         },
-//         Action::Input(token) => {
-//             match enigo.execute(token) {
-//                 Ok(_) => Ok(()),
-//                 Err(e) => anyhow::bail!("error: {:?}", e),
-//             }
-//         },
-//         _ => {
-//             println!("Unknown action {:?}", action);
-//             Ok(())
-//         }
-//     }
-// }
+fn eval(dev: &QKDevice, action: &Action, current_button: Option<WhichButton>) -> anyhow::Result<()> {
+    let mut enigo = Enigo::new(&Settings::default()).unwrap_or_else(|e| panic!("Failed to create enigo: {:?}", e));
+    match action {
+        Action::NonEnigo(NonEnigoAction::Sleep(millis)) => {
+            thread::sleep(time::Duration::from_millis(*millis));
+            Ok(())
+        },
+        Action::NonEnigo(NonEnigoAction::SetButtonText(wb, txt)) => {
+            let res = match wb {
+                WhichButton::Button0 => dev.set_key_text(0, txt),
+                WhichButton::Button1 => dev.set_key_text(1, txt),
+                WhichButton::Button2 => dev.set_key_text(2, txt),
+                WhichButton::Button3 => dev.set_key_text(3, txt),
+                WhichButton::Button4 => dev.set_key_text(4, txt),
+                WhichButton::Button5 => dev.set_key_text(5, txt),
+                WhichButton::Button6 => dev.set_key_text(6, txt),
+                WhichButton::Button7 => dev.set_key_text(7, txt),
+                WhichButton::ThisButton => match current_button {
+                    Some(WhichButton::Button0) => dev.set_key_text(0, txt),
+                    Some(WhichButton::Button1) => dev.set_key_text(1, txt),
+                    Some(WhichButton::Button2) => dev.set_key_text(2, txt),
+                    Some(WhichButton::Button3) => dev.set_key_text(3, txt),
+                    Some(WhichButton::Button4) => dev.set_key_text(4, txt),
+                    Some(WhichButton::Button5) => dev.set_key_text(5, txt),
+                    Some(WhichButton::Button6) => dev.set_key_text(6, txt),
+                    Some(WhichButton::Button7) => dev.set_key_text(7, txt),
+                    _ => Ok(()),
+                },
+                _ => Ok(()),
+            };
+            match res {
+                Ok(_) => Ok(()),
+                Err(e) => anyhow::bail!("error: {:?}", e),
+            }
+        },
+        Action::NonEnigo(NonEnigoAction::SetWheelColor(r, g, b)) => {
+            match dev.set_ring_color(*r, *g, *b) {
+                Ok(_) => Ok(()),
+                Err(e) => anyhow::bail!("error: {:?}", e),
+            }
+        },
+        Action::NonEnigo(NonEnigoAction::ShowBanner(seconds, txt)) => {
+            match dev.show_overlay_text(txt, *seconds) {
+                Ok(_) => Ok(()),
+                Err(e) => anyhow::bail!("error: {:?}", e),
+            }
+        },
+        Action::Input(token) => {
+            match enigo.execute(token) {
+                Ok(_) => Ok(()),
+                Err(e) => anyhow::bail!("error: {:?}", e),
+            }
+        },
+        _ => {
+            println!("Unknown action {:?}", action);
+            Ok(())
+        }
+    }
+}
+
+fn process_button_event(dev: &QKDevice, event: &ButtonEvent, callbacks: &ButtonCallback<Vec<Action>>, current_button: WhichButton) -> anyhow::Result<()> {
+    match event {
+        ButtonEvent::OnPress => {
+            for action in &callbacks.on_press {
+                eval(dev, action, Some(current_button.clone()))?;
+            }
+        },
+        ButtonEvent::OnRelease => {
+            for action in &callbacks.on_release {
+                eval(dev, action, Some(current_button.clone()))?;
+            }
+        },
+        ButtonEvent::OnLongPress => {
+            for action in &callbacks.on_long_press {
+                eval(dev, action, Some(current_button.clone()))?;
+            }
+        },
+        ButtonEvent::OnClick(click_count) => {
+            match click_count {
+                1 => {
+                    for action in &callbacks.on_click {
+                        eval(dev, action, Some(current_button.clone()))?;
+                    }
+                },
+                2 => {
+                    for action in &callbacks.on_double_click {
+                        eval(dev, action, Some(current_button.clone()))?;
+                    }
+                },
+                3 => {
+                    for action in &callbacks.on_triple_click {
+                        eval(dev, action, Some(current_button.clone()))?;
+                    }
+                },
+                _ => {
+                    println!("Unknown click count {}", click_count);
+                }
+            }
+        },
+    }
+    Ok(())
+}
+
+fn process_wheel_event(dev: &QKDevice, event: &WheelEvent, callbacks: &WheelCallback<Vec<Action>>) -> anyhow::Result<()> {
+    match event {
+        WheelEvent::OnRotateClockwiseStart => {
+            for action in &callbacks.on_clockwise_start {
+                eval(dev, action, None)?;
+            }
+        },
+        WheelEvent::OnRotateClockwiseEnd => {
+            for action in &callbacks.on_clockwise_stop {
+                eval(dev, action, None)?;
+            }
+        },
+        WheelEvent::OnRotateClockwiseStep => {
+            for action in &callbacks.on_clockwise {
+                eval(dev, action, None)?;
+            }
+        },
+        WheelEvent::OnRotateCounterClockwiseStart => {
+            for action in &callbacks.on_counterclockwise_start {
+                eval(dev, action, None)?;
+            }
+        },
+        WheelEvent::OnRotateCounterClockwiseEnd => {
+            for action in &callbacks.on_counterclockwise_stop {
+                eval(dev, action, None)?;
+            }
+        },
+        WheelEvent::OnRotateCounterClockwiseStep => {
+            for action in &callbacks.on_counterclockwise {
+                eval(dev, action, None)?;
+            }
+        },
+    }
+    Ok(())
+}
 
 
 pub fn run(model: Model) -> anyhow::Result<()> {
@@ -84,52 +163,58 @@ pub fn run(model: Model) -> anyhow::Result<()> {
         let ev = dev.read_timeout(300)?;
         let buttonset_event : ButtonSet<ButtonState, ButtonState> = ev.clone().into();
         let wheel_event : WheelSet<WheelState, ButtonState> = ev.clone().into();
-        let states = &mut state.button_state;
 
         let now = time::Instant::now();
-        let (new_buttonset_state, buttonset_events) = states.transition(buttonset_event.into(), now);
+        let (new_buttonset_state, buttonset_events) = state.button_state.transition(buttonset_event.into(), now);
         let (new_wheel_state, wheel_events) = state.wheel_state.transition(wheel_event.into(), now);
+
         state.button_state = new_buttonset_state;
         state.wheel_state = new_wheel_state;
-        if !buttonset_events.button0.is_empty() {
-            println!("Button 0 events: {:?}", buttonset_events.button0);
+
+        for event in buttonset_events.button0 {
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button0.button.clone();
+            process_button_event(&dev, &event, &callbacks, WhichButton::Button0)?;
         }
-        if !buttonset_events.button1.is_empty() {
-            println!("Button 1 events: {:?}", buttonset_events.button1);
+        for event in buttonset_events.button1 {
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button1.button.clone();
+            process_button_event(&dev, &event, &callbacks, WhichButton::Button1)?;
         }
-        if !buttonset_events.button2.is_empty() {
-            println!("Button 2 events: {:?}", buttonset_events.button2);
+        for event in buttonset_events.button2 {
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button2.button.clone();
+            process_button_event(&dev, &event, &callbacks, WhichButton::Button2)?;
         }
-        if !buttonset_events.button3.is_empty() {
-            println!("Button 3 events: {:?}", buttonset_events.button3);
+        for event in buttonset_events.button3 {
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button3.button.clone();
+            process_button_event(&dev, &event, &callbacks, WhichButton::Button3)?;
         }
-        if !buttonset_events.button4.is_empty() {
-            println!("Button 4 events: {:?}", buttonset_events.button4);
+        for event in buttonset_events.button4 {
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button4.button.clone();
+            process_button_event(&dev, &event, &callbacks, WhichButton::Button4)?;
         }
-        if !buttonset_events.button5.is_empty() {
-            println!("Button 5 events: {:?}", buttonset_events.button5);
+        for event in buttonset_events.button5 {
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button5.button.clone();
+            process_button_event(&dev, &event, &callbacks, WhichButton::Button5)?;
         }
-        if !buttonset_events.button6.is_empty() {
-            println!("Button 6 events: {:?}", buttonset_events.button6);
+        for event in buttonset_events.button6 {
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button6.button.clone();
+            process_button_event(&dev, &event, &callbacks, WhichButton::Button6)?;
         }
-        if !buttonset_events.button7.is_empty() {
-            println!("Button 7 events: {:?}", buttonset_events.button7);
+        for event in buttonset_events.button7 {
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button7.button.clone();
+            process_button_event(&dev, &event, &callbacks, WhichButton::Button7)?;
         }
-        if !buttonset_events.button_extra.is_empty() {
-            println!("Button extra events: {:?}", buttonset_events.button_extra);
+        for event in buttonset_events.button_extra {
+            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button_extra.clone();
+            process_button_event(&dev, &event, &callbacks, WhichButton::ButtonExtra)?;
         }
-        if !wheel_events.wheel.is_empty() {
-            println!("Wheel events: {:?}", wheel_events.wheel);
+        for event in wheel_events.wheel_button {
+            let callbacks = state.model.profiles[state.current_profile_index].wheels[state.current_wheel_index].button.clone();
+            process_button_event(&dev, &event, &callbacks, WhichButton::WheelButton)?;
         }
-        if !wheel_events.wheel_button.is_empty() {
-            println!("Wheel button events: {:?}", wheel_events.wheel_button);
+
+        for event in wheel_events.wheel {
+            let callbacks = state.model.profiles[state.current_profile_index].wheels[state.current_wheel_index].clone();
+            process_wheel_event(&dev, &event, &callbacks)?;
         }
     }
 }
-
-// fn on_press_actions(button: ButtonCallback<Vec<Action>>) -> Vec<Action> {
-//     match button {
-//         ButtonCallback::LowLevel(LowLevelButton { on_press, .. }) => on_press,
-//         ButtonCallback::HighLevel(HighLevelButton { on_click, .. }) => on_click,
-//     }
-// }
