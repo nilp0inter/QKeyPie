@@ -119,52 +119,34 @@ pub fn run(model: Model) -> anyhow::Result<()> {
         let states = &mut state.button_state;
         if let Some(ref bstate) = last_state {
             let now = time::Instant::now();
-            let (button0_new_state, button0_events) = states.button0.transition(bstate.button_0.into(), now);
-            let (button1_new_state, button1_events) = states.button1.transition(bstate.button_1.into(), now);
-            let (button2_new_state, button2_events) = states.button2.transition(bstate.button_2.into(), now);
-            let (button3_new_state, button3_events) = states.button3.transition(bstate.button_3.into(), now);
-            let (button4_new_state, button4_events) = states.button4.transition(bstate.button_4.into(), now);
-            let (button5_new_state, button5_events) = states.button5.transition(bstate.button_5.into(), now);
-            let (button6_new_state, button6_events) = states.button6.transition(bstate.button_6.into(), now);
-            let (button7_new_state, button7_events) = states.button7.transition(bstate.button_7.into(), now);
-            let (button_extra_new_state, button_extra_events) = states.button_extra.transition(bstate.button_extra.into(), now);
-            state.button_state = ButtonSet {
-                button0: button0_new_state,
-                button1: button1_new_state,
-                button2: button2_new_state,
-                button3: button3_new_state,
-                button4: button4_new_state,
-                button5: button5_new_state,
-                button6: button6_new_state,
-                button7: button7_new_state,
-                button_extra: button_extra_new_state,
-            };
-            if !button0_events.is_empty() {
-                println!("Button 0 events: {:?}", button0_events);
+            let (new_state, events) = states.transition(bstate.clone().into(), now);
+            state.button_state = new_state;
+            if !events.button0.is_empty() {
+                println!("Button 0 events: {:?}", events.button0);
             }
-            if !button1_events.is_empty() {
-                println!("Button 1 events: {:?}", button1_events);
+            if !events.button1.is_empty() {
+                println!("Button 1 events: {:?}", events.button1);
             }
-            if !button2_events.is_empty() {
-                println!("Button 2 events: {:?}", button2_events);
+            if !events.button2.is_empty() {
+                println!("Button 2 events: {:?}", events.button2);
             }
-            if !button3_events.is_empty() {
-                println!("Button 3 events: {:?}", button3_events);
+            if !events.button3.is_empty() {
+                println!("Button 3 events: {:?}", events.button3);
             }
-            if !button4_events.is_empty() {
-                println!("Button 4 events: {:?}", button4_events);
+            if !events.button4.is_empty() {
+                println!("Button 4 events: {:?}", events.button4);
             }
-            if !button5_events.is_empty() {
-                println!("Button 5 events: {:?}", button5_events);
+            if !events.button5.is_empty() {
+                println!("Button 5 events: {:?}", events.button5);
             }
-            if !button6_events.is_empty() {
-                println!("Button 6 events: {:?}", button6_events);
+            if !events.button6.is_empty() {
+                println!("Button 6 events: {:?}", events.button6);
             }
-            if !button7_events.is_empty() {
-                println!("Button 7 events: {:?}", button7_events);
+            if !events.button7.is_empty() {
+                println!("Button 7 events: {:?}", events.button7);
             }
-            if !button_extra_events.is_empty() {
-                println!("Button Extra events: {:?}", button_extra_events);
+            if !events.button_extra.is_empty() {
+                println!("Button extra events: {:?}", events.button_extra);
             }
         }
 

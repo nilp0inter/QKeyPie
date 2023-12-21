@@ -1,9 +1,12 @@
+use xencelabs_quick_keys;
 use std::time::Instant;
 
 use enigo::agent;
 
 use serde::Serialize;
 use serde::Deserialize;
+
+use crate::events;
 
 pub type ButtonId = String;
 pub type WheelId = String;
@@ -148,3 +151,53 @@ where T1: Default, T2: Default {
     }
 }
 
+impl From<xencelabs_quick_keys::ButtonState> for ButtonSet<events::ButtonState, events::ButtonState> {
+    fn from(b: xencelabs_quick_keys::ButtonState) -> Self {
+        ButtonSet {
+            button0: b.button_0.into(),
+            button1: b.button_1.into(),
+            button2: b.button_2.into(),
+            button3: b.button_3.into(),
+            button4: b.button_4.into(),
+            button5: b.button_5.into(),
+            button6: b.button_6.into(),
+            button7: b.button_7.into(),
+            button_extra: b.button_extra.into(),
+        }
+    }
+}
+
+impl ButtonSet<events::ClickStateMachine, events::ClickStateMachine> {
+    pub fn transition(&self, event: ButtonSet<events::ButtonState, events::ButtonState>, when: Instant) -> (Self, ButtonSet<Vec<events::Event>, Vec<events::Event>>) {
+        let (button0_new_state, button0_events) = self.button0.transition(event.button0, when);
+        let (button1_new_state, button1_events) = self.button1.transition(event.button1, when);
+        let (button2_new_state, button2_events) = self.button2.transition(event.button2, when);
+        let (button3_new_state, button3_events) = self.button3.transition(event.button3, when);
+        let (button4_new_state, button4_events) = self.button4.transition(event.button4, when);
+        let (button5_new_state, button5_events) = self.button5.transition(event.button5, when);
+        let (button6_new_state, button6_events) = self.button6.transition(event.button6, when);
+        let (button7_new_state, button7_events) = self.button7.transition(event.button7, when);
+        let (button_extra_new_state, button_extra_events) = self.button_extra.transition(event.button_extra, when);
+        (ButtonSet {
+            button0: button0_new_state,
+            button1: button1_new_state,
+            button2: button2_new_state,
+            button3: button3_new_state,
+            button4: button4_new_state,
+            button5: button5_new_state,
+            button6: button6_new_state,
+            button7: button7_new_state,
+            button_extra: button_extra_new_state,
+        }, ButtonSet {
+            button0: button0_events,
+            button1: button1_events,
+            button2: button2_events,
+            button3: button3_events,
+            button4: button4_events,
+            button5: button5_events,
+            button6: button6_events,
+            button7: button7_events,
+            button_extra: button_extra_events,
+        })
+    }
+}
