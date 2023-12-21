@@ -12,7 +12,8 @@ pub struct State {
     pub current_wheel_id: String,
     pub current_wheel_index: usize,
     pub model: Model,
-    pub button_state: actions::ButtonSet<events::ClickStateMachine, events::ClickStateMachine>,
+    pub button_state: actions::ButtonSet<events::ButtonStateMachine, events::ButtonStateMachine>,
+    pub wheel_state: actions::WheelSet<events::WheelStateMachine, events::ButtonStateMachine>,
 }
 
 impl State {
@@ -29,6 +30,7 @@ impl State {
             current_wheel_index: 0,
             model,
             button_state: actions::ButtonSet::default(),
+            wheel_state: actions::WheelSet::default(),
         })
     }
 }

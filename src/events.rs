@@ -1,10 +1,11 @@
 use std::time::Instant;
 
-// let now = Instant::now();
+// use crate::actions;
 
 pub enum ButtonState {
     Pressed,
     Released,
+    Unknown
 }
 
 impl From<bool> for ButtonState {
@@ -18,7 +19,7 @@ impl From<bool> for ButtonState {
 }
 
 #[derive(Debug, Copy, Clone)]
-pub enum ClickStateMachine {
+pub enum ButtonStateMachine {
     Idle,
     Pressed(Instant),
     LongPressed,
@@ -26,69 +27,153 @@ pub enum ClickStateMachine {
     NonFirstPressed(Instant, u8),
 }
 
-impl Default for ClickStateMachine {
+impl Default for ButtonStateMachine {
     fn default() -> Self {
-        ClickStateMachine::Idle
+        ButtonStateMachine::Idle
     }
 }
 
 #[derive(Debug)]
-pub enum Event {
+pub enum ButtonEvent {
     OnPress,
     OnRelease,
     OnLongPress,
     OnClick(u8),
 }
 
-
-impl ClickStateMachine {
-    pub fn transition(&self, event: ButtonState, when: Instant) -> (Self, Vec<Event>) {
+impl ButtonStateMachine {
+    pub fn transition(&self, event: ButtonState, when: Instant) -> (Self, Vec<ButtonEvent>) {
         match (self.clone(), event) {
-            (ClickStateMachine::Idle, ButtonState::Pressed) => {
-                (ClickStateMachine::Pressed(when), vec![Event::OnPress])
+            (ButtonStateMachine::Idle, ButtonState::Pressed) => {
+                (ButtonStateMachine::Pressed(when), vec![ButtonEvent::OnPress])
             },
-            (ClickStateMachine::Idle, ButtonState::Released) => {
-                (ClickStateMachine::Idle, vec![])
+            (ButtonStateMachine::Idle, _) => {
+                (ButtonStateMachine::Idle, vec![])
             },
-            (ClickStateMachine::Pressed(pressed_at), ButtonState::Released) => {
+            (ButtonStateMachine::Pressed(pressed_at), ButtonState::Released) => {
                 let duration = when.duration_since(pressed_at);
                 if duration.as_millis() < 500 {
-                    (ClickStateMachine::WaitingForClick(when, 1), vec![Event::OnRelease])
+                    (ButtonStateMachine::WaitingForClick(when, 1), vec![ButtonEvent::OnRelease])
                 } else {
-                    (ClickStateMachine::LongPressed, vec![Event::OnLongPress])
+                    (ButtonStateMachine::LongPressed, vec![ButtonEvent::OnLongPress])
                 }
             }
-            (ClickStateMachine::Pressed(pressed_at), ButtonState::Pressed) => {
+            (ButtonStateMachine::Pressed(pressed_at), _) => {
                 let duration = when.duration_since(pressed_at.clone());
                 if duration.as_millis() > 500 {
-                    (ClickStateMachine::LongPressed, vec![Event::OnLongPress])
+                    (ButtonStateMachine::LongPressed, vec![ButtonEvent::OnLongPress])
                 } else {
-                    (ClickStateMachine::Pressed(pressed_at), vec![])
+                    (ButtonStateMachine::Pressed(pressed_at), vec![])
                 }
             }
-            (ClickStateMachine::LongPressed, ButtonState::Pressed) => {
-                (ClickStateMachine::LongPressed, vec![])
+            (ButtonStateMachine::LongPressed, ButtonState::Released) => {
+                (ButtonStateMachine::Idle, vec![ButtonEvent::OnRelease])
             }
-            (ClickStateMachine::LongPressed, ButtonState::Released) => {
-                (ClickStateMachine::Idle, vec![Event::OnRelease])
+            (ButtonStateMachine::LongPressed, _) => {
+                (ButtonStateMachine::LongPressed, vec![])
             }
-            (ClickStateMachine::WaitingForClick(_, count), ButtonState::Pressed) => {
-                (ClickStateMachine::NonFirstPressed(when, count), vec![Event::OnPress])
+            (ButtonStateMachine::WaitingForClick(_, count), ButtonState::Pressed) => {
+                (ButtonStateMachine::NonFirstPressed(when, count), vec![ButtonEvent::OnPress])
             }
-            (ClickStateMachine::WaitingForClick(pressed_at, count), ButtonState::Released) => {
+            (ButtonStateMachine::WaitingForClick(pressed_at, count), _) => {
                 let duration = when.duration_since(pressed_at);
                 if duration.as_millis() < 250 {
-                    (ClickStateMachine::WaitingForClick(pressed_at, count), vec![])
+                    (ButtonStateMachine::WaitingForClick(pressed_at, count), vec![])
                 } else {
-                    (ClickStateMachine::Idle, vec![Event::OnClick(count)])
+                    (ButtonStateMachine::Idle, vec![ButtonEvent::OnClick(count)])
                 }
             }
-            (ClickStateMachine::NonFirstPressed(pressed_at, count), ButtonState::Pressed) => {
-                (ClickStateMachine::NonFirstPressed(pressed_at, count), vec![])
+            (ButtonStateMachine::NonFirstPressed(pressed_at, count), ButtonState::Released) => {
+                (ButtonStateMachine::WaitingForClick(pressed_at, count + 1), vec![ButtonEvent::OnRelease])
             }
-            (ClickStateMachine::NonFirstPressed(pressed_at, count), ButtonState::Released) => {
-                (ClickStateMachine::WaitingForClick(pressed_at, count + 1), vec![Event::OnRelease])
+            (ButtonStateMachine::NonFirstPressed(pressed_at, count), _) => {
+                (ButtonStateMachine::NonFirstPressed(pressed_at, count), vec![])
             }
+        }
+    }
+}
+
+pub enum WheelState {
+    Unknown,
+    RotatingClockwise,
+    RotatingCounterClockwise,
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum WheelStateMachine {
+    Idle,
+    RotatingClockwise(Instant),
+    RotatingCounterClockwise(Instant),
+}
+
+impl Default for WheelStateMachine {
+    fn default() -> Self {
+        WheelStateMachine::Idle
+    }
+}
+
+impl From<xencelabs_quick_keys::Event> for WheelState {
+    fn from(b: xencelabs_quick_keys::Event) -> Self {
+        match b {
+            xencelabs_quick_keys::Event::Wheel { direction } => {
+                match direction {
+                    xencelabs_quick_keys::WheelDirection::Right => WheelState::RotatingClockwise,
+                    xencelabs_quick_keys::WheelDirection::Left => WheelState::RotatingCounterClockwise,
+                }
+            },
+            _ => WheelState::Unknown,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum WheelEvent {
+    OnRotateClockwiseStart,
+    OnRotateClockwiseStep,
+    OnRotateClockwiseEnd,
+    OnRotateCounterClockwiseStart,
+    OnRotateCounterClockwiseStep,
+    OnRotateCounterClockwiseEnd,
+}
+
+impl WheelStateMachine {
+    pub fn transition(&self, event: WheelState, when: Instant) -> (Self, Vec<WheelEvent>) {
+        match (self.clone(), event) {
+            (WheelStateMachine::Idle, WheelState::Unknown) => {
+                (WheelStateMachine::Idle, vec![])
+            },
+            (WheelStateMachine::Idle, WheelState::RotatingClockwise) => {
+                (WheelStateMachine::RotatingClockwise(when), vec![WheelEvent::OnRotateClockwiseStart])
+            },
+            (WheelStateMachine::Idle, WheelState::RotatingCounterClockwise) => {
+                (WheelStateMachine::RotatingCounterClockwise(when), vec![WheelEvent::OnRotateCounterClockwiseStart])
+            },
+            (WheelStateMachine::RotatingClockwise(started_at), WheelState::Unknown) => {
+                if when.duration_since(started_at).as_millis() < 500 {
+                    (WheelStateMachine::RotatingClockwise(started_at), vec![])
+                } else {
+                    (WheelStateMachine::Idle, vec![WheelEvent::OnRotateClockwiseEnd])
+                }
+            },
+            (WheelStateMachine::RotatingClockwise(_), WheelState::RotatingClockwise) => {
+                (WheelStateMachine::RotatingClockwise(when), vec![WheelEvent::OnRotateClockwiseStep])
+            },
+            (WheelStateMachine::RotatingClockwise(_), WheelState::RotatingCounterClockwise) => {
+                (WheelStateMachine::RotatingCounterClockwise(when), vec![WheelEvent::OnRotateClockwiseEnd, WheelEvent::OnRotateCounterClockwiseStart])
+            },
+            (WheelStateMachine::RotatingCounterClockwise(started_at), WheelState::Unknown) => {
+                if when.duration_since(started_at).as_millis() < 500 {
+                    (WheelStateMachine::RotatingCounterClockwise(started_at), vec![])
+                } else {
+                    (WheelStateMachine::Idle, vec![WheelEvent::OnRotateCounterClockwiseEnd])
+                }
+            },
+            (WheelStateMachine::RotatingCounterClockwise(_), WheelState::RotatingCounterClockwise) => {
+                (WheelStateMachine::RotatingCounterClockwise(when), vec![WheelEvent::OnRotateCounterClockwiseStep])
+            },
+            (WheelStateMachine::RotatingCounterClockwise(_), WheelState::RotatingClockwise) => {
+                (WheelStateMachine::RotatingClockwise(when), vec![WheelEvent::OnRotateCounterClockwiseEnd, WheelEvent::OnRotateClockwiseStart])
+            },
         }
     }
 }

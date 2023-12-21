@@ -96,7 +96,7 @@ pub struct ButtonSet<T1, T2> {
 #[serde(deny_unknown_fields)]
 pub struct WheelSet<T1, T2> {
     pub wheel: T1,
-    pub center_button: T2,
+    pub wheel_button: T2,
 }
 
 impl<T1, T2> Default for ButtonSet<T1, T2>
@@ -112,6 +112,16 @@ where T1: Default, T2: Default {
             button6: Default::default(),
             button7: Default::default(),
             button_extra: Default::default(),
+        }
+    }
+}
+
+impl<T1, T2> Default for WheelSet<T1, T2>
+where T1: Default, T2: Default {
+    fn default() -> Self {
+        WheelSet {
+            wheel: Default::default(),
+            wheel_button: Default::default(),
         }
     }
 }
@@ -132,8 +142,49 @@ impl From<xencelabs_quick_keys::ButtonState> for ButtonSet<events::ButtonState, 
     }
 }
 
-impl ButtonSet<events::ClickStateMachine, events::ClickStateMachine> {
-    pub fn transition(&self, event: ButtonSet<events::ButtonState, events::ButtonState>, when: Instant) -> (Self, ButtonSet<Vec<events::Event>, Vec<events::Event>>) {
+impl From<xencelabs_quick_keys::Event> for ButtonSet<events::ButtonState, events::ButtonState> {
+    fn from(b: xencelabs_quick_keys::Event) -> Self {
+        match b {
+            xencelabs_quick_keys::Event::Button { state } => state.into(),
+            _ => ButtonSet {
+                button0: events::ButtonState::Unknown,
+                button1: events::ButtonState::Unknown,
+                button2: events::ButtonState::Unknown,
+                button3: events::ButtonState::Unknown,
+                button4: events::ButtonState::Unknown,
+                button5: events::ButtonState::Unknown,
+                button6: events::ButtonState::Unknown,
+                button7: events::ButtonState::Unknown,
+                button_extra: events::ButtonState::Unknown,
+            },
+        }
+    }
+}
+
+impl From<xencelabs_quick_keys::Event> for WheelSet<events::WheelState, events::ButtonState> {
+    fn from(b: xencelabs_quick_keys::Event) -> Self {
+        match b {
+            xencelabs_quick_keys::Event::Wheel { direction } => WheelSet {
+                wheel: match direction {
+                    xencelabs_quick_keys::WheelDirection::Right => events::WheelState::RotatingClockwise,
+                    xencelabs_quick_keys::WheelDirection::Left => events::WheelState::RotatingCounterClockwise
+                },
+                wheel_button: events::ButtonState::Unknown,
+            },
+            xencelabs_quick_keys::Event::Button { state } => WheelSet {
+                wheel: events::WheelState::Unknown,
+                wheel_button: state.button_wheel.into(),
+            },
+            _ => WheelSet {
+                wheel: events::WheelState::Unknown,
+                wheel_button: events::ButtonState::Unknown,
+            },
+        }
+    }
+}
+
+impl ButtonSet<events::ButtonStateMachine, events::ButtonStateMachine> {
+    pub fn transition(&self, event: ButtonSet<events::ButtonState, events::ButtonState>, when: Instant) -> (Self, ButtonSet<Vec<events::ButtonEvent>, Vec<events::ButtonEvent>>) {
         let (button0_new_state, button0_events) = self.button0.transition(event.button0, when);
         let (button1_new_state, button1_events) = self.button1.transition(event.button1, when);
         let (button2_new_state, button2_events) = self.button2.transition(event.button2, when);
@@ -163,6 +214,20 @@ impl ButtonSet<events::ClickStateMachine, events::ClickStateMachine> {
             button6: button6_events,
             button7: button7_events,
             button_extra: button_extra_events,
+        })
+    }
+}
+
+impl WheelSet<events::WheelStateMachine, events::ButtonStateMachine> {
+    pub fn transition(&self, event: WheelSet<events::WheelState, events::ButtonState>, when: Instant) -> (Self, WheelSet<Vec<events::WheelEvent>, Vec<events::ButtonEvent>>) {
+        let (wheel_new_state, wheel_events) = self.wheel.transition(event.wheel, when);
+        let (wheel_button_new_state, wheel_button_events) = self.wheel_button.transition(event.wheel_button, when);
+        (WheelSet {
+            wheel: wheel_new_state,
+            wheel_button: wheel_button_new_state,
+        }, WheelSet {
+            wheel: wheel_events,
+            wheel_button: wheel_button_events,
         })
     }
 }
