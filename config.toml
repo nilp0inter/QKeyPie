@@ -2,31 +2,30 @@
 
 [wheels.zoom]
 on_clockwise_start = [
+  { ShowBanner = [ 2, "-- Zoom In --" ] },
   { Key = [ "Control", "Press" ] },
 ]
 on_clockwise = [
   { Key = [ { Unicode = "+" }, "Click" ] },
 ]
 on_clockwise_stop = [
-  { Key = [ "Control", "Press" ] },
+  { Key = [ "Control", "Release" ] },
+]
+on_press = [
+  { ShowBanner = [ 2, "-- Zoom 100% --" ] },
+  { Key = ["Control", "Press"] },
+  { Key = [ { Unicode = "0" }, "Click" ] },
+  { Key = ["Control", "Release"] },
 ]
 on_counterclockwise_start = [
+  { ShowBanner = [ 2, "-- Zoom Out --" ] },
   { Key = [ "Control", "Press" ] },
 ]
 on_counterclockwise = [
-  { Key = [ { Unicode = "-" }, "Click" ] },
+  { Key = [ { Unicode = "_" }, "Click" ] },
 ]
 on_counterclockwise_stop = [
-  { Key = [ "Control", "Press" ] },
-]
-on_click = [
-  { ChangeWheel = "Next" }
-]
-on_double_click = [
-  { ChangeWheel = "Previous" }
-]
-on_long_press = [
-  { SetWheelColor = [ 255, 0, 0 ] }
+  { Key = [ "Control", "Release" ] },
 ]
 
 
