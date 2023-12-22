@@ -1,6 +1,9 @@
 [wheels]
 
 [wheels.zoom]
+on_enter = [
+  { SetWheelColor = [ 255, 0, 0 ] }
+]
 on_clockwise_start = [
   { ShowBanner = [ 2, "-- Zoom In --" ] },
   { Key = [ "Control", "Press" ] },
@@ -10,12 +13,6 @@ on_clockwise = [
 ]
 on_clockwise_stop = [
   { Key = [ "Control", "Release" ] },
-]
-on_press = [
-  { ShowBanner = [ 2, "-- Zoom 100% --" ] },
-  { Key = ["Control", "Press"] },
-  { Key = [ { Unicode = "0" }, "Click" ] },
-  { Key = ["Control", "Release"] },
 ]
 on_counterclockwise_start = [
   { ShowBanner = [ 2, "-- Zoom Out --" ] },
@@ -27,20 +24,52 @@ on_counterclockwise = [
 on_counterclockwise_stop = [
   { Key = [ "Control", "Release" ] },
 ]
+on_click = [
+  { ChangeWheel = "Next" }
+]
+on_double_click = [
+  { ChangeWheel = "Previous" }
+]
+on_long_press = [
+  { ShowBanner = [ 2, "-- Zoom 100% --" ] },
+  { Key = ["Control", "Press"] },
+  { Key = [ { Unicode = "0" }, "Click" ] },
+  { Key = ["Control", "Release"] },
+]
+
+[wheels.volume]
+on_enter = [
+  { SetWheelColor = [ 255, 255, 0 ] }
+]
+on_clockwise = [
+  { Text = "Volume Up" }
+]
+on_counterclockwise = [
+  { Text = "Volume Down" }
+]
+on_click = [
+  { ChangeWheel = "Next" }
+]
+on_long_press = [
+  { Text = "Volume 50%" }
+]
+on_double_click = [
+  { ChangeWheel = "Previous" }
+]
+
+
+[buttons.next]
+on_press = [
+  { ChangeButtonSet = "Next" }
+]
+on_long_press = [
+  { ChangeProfile = [ "Next", "First", "First" ] }
+]
 
 
 [buttons.hola]
 on_double_click = [
-  # { ShowBanner = [ 3, "Hola Mundo!" ] },
-  { SetButtonText = [ "Button0", "hola$0" ] },
-  { SetButtonText = [ "Button1", "hola$1" ] },
-  { SetButtonText = [ "Button2", "hola$2" ] },
-  { SetButtonText = [ "Button3", "hola$3" ] },
-  { SetButtonText = [ "Button4", "hola$4" ] },
-  { SetButtonText = [ "Button5", "hola$5" ] },
-  { SetButtonText = [ "Button6", "hola$6" ] },
-  { SetButtonText = [ "Button7", "hola$7" ] },
-  { Text = "Hello!" }
+  { Text = "Hi!" }
 ]
 
 [buttons.adios]
@@ -56,14 +85,59 @@ on_press = [
   { Text = "Bye!" }
 ]
 
+[buttons.say_hi]
+on_press = [ { Text = "Hi!" } ]
 
-[buttonsets.navigation]
-button0="hola"
-button_extra="adios"
+[buttonsets.bts1]
+on_enter = [
+  { SetButtonText = [ "Button0", "Say$Hi!" ] },
+  { SetButtonText = [ "Button1", "hola$1" ] },
+  { SetButtonText = [ "Button2", "hola$2" ] },
+  { SetButtonText = [ "Button3", "hola$3" ] },
+  { SetButtonText = [ "Button4", "hola$4" ] },
+  { SetButtonText = [ "Button5", "hola$5" ] },
+  { SetButtonText = [ "Button6", "hola$6" ] },
+  { SetButtonText = [ "Button7", "hola$7" ] },
+]
+button0="say_hi"
+button_extra="next"
+
+[buttonsets.bts2]
+on_enter = [
+  { SetButtonText = [ "Button0", "bts2$0" ] },
+  { SetButtonText = [ "Button1", "bts2$1" ] },
+  { SetButtonText = [ "Button2", "bts2$2" ] },
+  { SetButtonText = [ "Button3", "bts2$3" ] },
+  { SetButtonText = [ "Button4", "bts2$4" ] },
+  { SetButtonText = [ "Button5", "bts2$5" ] },
+  { SetButtonText = [ "Button6", "bts2$6" ] },
+  { SetButtonText = [ "Button7", "bts2$7" ] },
+]
+button_extra="next"
+
+[buttonsets.bts3]
+on_enter = [
+  { SetButtonText = [ "Button0", "bts3$0" ] },
+  { SetButtonText = [ "Button1", "bts3$1" ] },
+  { SetButtonText = [ "Button2", "bts3$2" ] },
+  { SetButtonText = [ "Button3", "bts3$3" ] },
+  { SetButtonText = [ "Button4", "bts3$4" ] },
+  { SetButtonText = [ "Button5", "bts3$5" ] },
+  { SetButtonText = [ "Button6", "bts3$6" ] },
+  { SetButtonText = [ "Button7", "bts3$7" ] },
+]
+button_extra="next"
 
 [profiles.niano.buttonsets]
-first="navigation"
+first="bts1"
+second="bts2"
 
 [profiles.niano.wheels]
 zoom="zoom"
+volume="volume"
 
+[profiles.ploqui.buttonsets]
+first="bts3"
+
+[profiles.ploqui.wheels]
+volume="volume"

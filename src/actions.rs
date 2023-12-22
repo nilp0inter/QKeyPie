@@ -35,6 +35,14 @@ pub enum ChangeRef {
     First,
     Last,
     Name(String),
+    This,
+}
+
+#[derive(Debug, Clone)]
+pub struct GoTo {
+    pub profile: ChangeRef,
+    pub buttonset: ChangeRef,
+    pub wheel: ChangeRef,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -43,7 +51,7 @@ pub enum NonEnigoAction {
     SetButtonText(WhichButton, String),
     SetWheelColor(u8, u8, u8),
     ShowBanner(u8, String),
-    ChangeProfile(ChangeRef),
+    ChangeProfile(ChangeRef, ChangeRef, ChangeRef),
     ChangeWheel(ChangeRef),
     ChangeButtonSet(ChangeRef),
 }
@@ -67,7 +75,6 @@ pub struct ButtonCallback<T> {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(deny_unknown_fields)]
 pub struct WheelCallback<T> {
     pub on_clockwise: T,
     pub on_clockwise_start: T,
@@ -80,7 +87,20 @@ pub struct WheelCallback<T> {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(deny_unknown_fields)]
+pub struct WheelSetCallback<T> {
+    #[serde(flatten)]
+    pub wheel: WheelCallback<T>,
+    #[serde(flatten)]
+    pub active: ActiveCallback<T>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ActiveCallback<T> {
+    pub on_enter: T,
+    pub on_exit: T,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ButtonSet<T> {
     pub button0: T,
     pub button1: T,
@@ -91,6 +111,14 @@ pub struct ButtonSet<T> {
     pub button6: T,
     pub button7: T,
     pub button_extra: T,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ButtonSetCallback<T1, T2> {
+    #[serde(flatten)]
+    pub buttonset: ButtonSet<T1>,
+    #[serde(flatten)]
+    pub active: ActiveCallback<T2>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -230,6 +258,15 @@ impl WheelSet<events::WheelStateMachine, events::ButtonStateMachine> {
             wheel: wheel_events,
             wheel_button: wheel_button_events,
         })
+    }
+}
+
+impl Default for ActiveCallback<Vec<Action>> {
+    fn default() -> Self {
+        ActiveCallback {
+            on_enter: vec![],
+            on_exit: vec![],
+        }
     }
 }
 

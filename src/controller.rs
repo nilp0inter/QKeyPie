@@ -9,15 +9,15 @@ use enigo::{
 
 use crate::model::Model;
 use crate::actions::{Action, NonEnigoAction, WhichButton};
-use crate::actions::{ButtonSet, WheelSet, ButtonCallback, WheelCallback};
+use crate::actions::{ButtonSet, WheelSet, ButtonCallback, WheelSetCallback, GoTo, ChangeRef};
 use crate::events::{ButtonState, WheelState, ButtonEvent, WheelEvent};
 use crate::state;
 
-fn eval(enigo: &mut Enigo, dev: &QKDevice, action: &Action, current_button: Option<WhichButton>) -> anyhow::Result<()> {
+fn eval(enigo: &mut Enigo, dev: &QKDevice, action: &Action, current_button: Option<WhichButton>) -> anyhow::Result<Option<GoTo>> {
     match action {
         Action::NonEnigo(NonEnigoAction::Sleep(millis)) => {
             thread::sleep(time::Duration::from_millis(*millis));
-            Ok(())
+            Ok(None)
         },
         Action::NonEnigo(NonEnigoAction::SetButtonText(wb, txt)) => {
             let res = match wb {
@@ -43,114 +43,139 @@ fn eval(enigo: &mut Enigo, dev: &QKDevice, action: &Action, current_button: Opti
                 _ => Ok(()),
             };
             match res {
-                Ok(_) => Ok(()),
+                Ok(_) => Ok(None),
                 Err(e) => anyhow::bail!("error: {:?}", e),
             }
         },
         Action::NonEnigo(NonEnigoAction::SetWheelColor(r, g, b)) => {
             match dev.set_ring_color(*r, *g, *b) {
-                Ok(_) => Ok(()),
+                Ok(_) => Ok(None),
                 Err(e) => anyhow::bail!("error: {:?}", e),
             }
         },
         Action::NonEnigo(NonEnigoAction::ShowBanner(seconds, txt)) => {
             match dev.show_overlay_text(txt, *seconds) {
-                Ok(_) => Ok(()),
+                Ok(_) => Ok(None),
                 Err(e) => anyhow::bail!("error: {:?}", e),
             }
         },
         Action::Input(token) => {
             match enigo.execute(token) {
-                Ok(_) => Ok(()),
+                Ok(_) => Ok(None),
                 Err(e) => anyhow::bail!("error: {:?}", e),
             }
         },
-        _ => {
-            println!("Unknown action {:?}", action);
-            Ok(())
-        }
+        Action::NonEnigo(NonEnigoAction::ChangeProfile(profile, buttonset, wheel)) => {
+            Ok(Some(GoTo {
+                profile: profile.clone(),
+                buttonset: buttonset.clone(),
+                wheel: wheel.clone(),
+            }))
+        },
+        Action::NonEnigo(NonEnigoAction::ChangeWheel(wheel)) => {
+            Ok(Some(GoTo {
+                profile: ChangeRef::This,
+                buttonset: ChangeRef::This,
+                wheel: wheel.clone(),
+            }))
+        },
+        Action::NonEnigo(NonEnigoAction::ChangeButtonSet(buttonset)) => {
+            Ok(Some(GoTo {
+                profile: ChangeRef::This,
+                buttonset: buttonset.clone(),
+                wheel: ChangeRef::This,
+            }))
+        },
     }
 }
 
-fn process_button_event(enigo: &mut Enigo, dev: &QKDevice, event: &ButtonEvent, callbacks: &ButtonCallback<Vec<Action>>, current_button: WhichButton) -> anyhow::Result<()> {
+fn process_button_event(enigo: &mut Enigo, dev: &QKDevice, event: &ButtonEvent, callbacks: &ButtonCallback<Vec<Action>>, current_button: WhichButton) -> anyhow::Result<Option<GoTo>> {
     match event {
         ButtonEvent::OnPress => {
-            for action in &callbacks.on_press {
-                eval(enigo, dev, action, Some(current_button.clone()))?;
-            }
+            callbacks.on_press.iter().try_fold(None, |acc, action| {
+                eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
+            })
         },
         ButtonEvent::OnRelease => {
-            for action in &callbacks.on_release {
-                eval(enigo, dev, action, Some(current_button.clone()))?;
-            }
+            callbacks.on_release.iter().try_fold(None, |acc, action| {
+                eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
+            })
         },
         ButtonEvent::OnLongPress => {
-            for action in &callbacks.on_long_press {
-                eval(enigo, dev, action, Some(current_button.clone()))?;
-            }
+            callbacks.on_long_press.iter().try_fold(None, |acc, action| {
+                eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
+            })
         },
         ButtonEvent::OnClick(click_count) => {
             match click_count {
                 1 => {
-                    for action in &callbacks.on_click {
-                        eval(enigo, dev, action, Some(current_button.clone()))?;
-                    }
+                    callbacks.on_click.iter().try_fold(None, |acc, action| {
+                        eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
+                    })
                 },
                 2 => {
-                    for action in &callbacks.on_double_click {
-                        eval(enigo, dev, action, Some(current_button.clone()))?;
-                    }
+                    callbacks.on_double_click.iter().try_fold(None, |acc, action| {
+                        eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
+                    })
                 },
                 3 => {
-                    for action in &callbacks.on_triple_click {
-                        eval(enigo, dev, action, Some(current_button.clone()))?;
-                    }
+                    // for action in &callbacks.on_triple_click {
+                    //     eval(enigo, dev, action, Some(current_button.clone()))?;
+                    // }
+                    callbacks.on_triple_click.iter().try_fold(None, |acc, action| {
+                        eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
+                    })
                 },
                 _ => {
                     println!("Unknown click count {}", click_count);
+                    Ok(None)
                 }
             }
         },
     }
-    Ok(())
 }
 
-fn process_wheel_event(enigo: &mut Enigo, dev: &QKDevice, event: &WheelEvent, callbacks: &WheelCallback<Vec<Action>>) -> anyhow::Result<()> {
+fn process_wheel_event(enigo: &mut Enigo, dev: &QKDevice, event: &WheelEvent, callbacks: &WheelSetCallback<Vec<Action>>) -> anyhow::Result<Option<GoTo>> {
     match event {
         WheelEvent::OnRotateClockwiseStart => {
-            for action in &callbacks.on_clockwise_start {
-                eval(enigo, dev, action, None)?;
-            }
+            callbacks.wheel.on_clockwise_start.iter().try_fold(None, |acc, action| {
+                eval(enigo, dev, action, None).map(|opt_value| opt_value.or(acc))
+            })
         },
         WheelEvent::OnRotateClockwiseEnd => {
-            for action in &callbacks.on_clockwise_stop {
-                eval(enigo, dev, action, None)?;
-            }
+            callbacks.wheel.on_clockwise_stop.iter().try_fold(None, |acc, action| {
+                eval(enigo, dev, action, None).map(|opt_value| opt_value.or(acc))
+            })
         },
         WheelEvent::OnRotateClockwiseStep => {
-            for action in &callbacks.on_clockwise {
-                eval(enigo, dev, action, None)?;
-            }
+            callbacks.wheel.on_clockwise.iter().try_fold(None, |acc, action| {
+                eval(enigo, dev, action, None).map(|opt_value| opt_value.or(acc))
+            })
         },
         WheelEvent::OnRotateCounterClockwiseStart => {
-            for action in &callbacks.on_counterclockwise_start {
-                eval(enigo, dev, action, None)?;
-            }
+            callbacks.wheel.on_counterclockwise_start.iter().try_fold(None, |acc, action| {
+                eval(enigo, dev, action, None).map(|opt_value| opt_value.or(acc))
+            })
         },
         WheelEvent::OnRotateCounterClockwiseEnd => {
-            for action in &callbacks.on_counterclockwise_stop {
-                eval(enigo, dev, action, None)?;
-            }
+            callbacks.wheel.on_counterclockwise_stop.iter().try_fold(None, |acc, action| {
+                eval(enigo, dev, action, None).map(|opt_value| opt_value.or(acc))
+            })
         },
         WheelEvent::OnRotateCounterClockwiseStep => {
-            for action in &callbacks.on_counterclockwise {
-                eval(enigo, dev, action, None)?;
-            }
+            callbacks.wheel.on_counterclockwise.iter().try_fold(None, |acc, action| {
+                eval(enigo, dev, action, None).map(|opt_value| opt_value.or(acc))
+            })
         },
     }
-    Ok(())
 }
 
+
+fn process_buttonset_events(enigo: &mut Enigo, dev: &QKDevice, events: Vec<ButtonEvent>, callbacks: &ButtonCallback<Vec<Action>>, current_button: WhichButton) -> anyhow::Result<Option<GoTo>> {
+    events.iter().try_fold(None, |acc, event| {
+        process_button_event(enigo, &dev, &event, &callbacks, current_button.clone()).map(|opt_value| opt_value.or(acc))
+    })
+}
 
 pub fn run(model: Model) -> anyhow::Result<()> {
     let mut state = state::State::new(model)?;
@@ -158,7 +183,10 @@ pub fn run(model: Model) -> anyhow::Result<()> {
     let mut enigo = Enigo::new(&Settings::default()).unwrap_or_else(|e| panic!("Failed to create enigo: {:?}", e));
     let api = HidApi::new()?;
     let dev = QKDevice::open(api, ConnectionMode::Auto)?;
+
     dev.set_screen_orientation(ScreenOrientation::Rotate180)?; 
+    dev.set_wheel_speed(xencelabs_quick_keys::WheelSpeed::Slower)?;
+
     loop {
         let ev = dev.read_timeout(300)?;
         let buttonset_event : ButtonSet<ButtonState> = ev.clone().into();
@@ -171,50 +199,67 @@ pub fn run(model: Model) -> anyhow::Result<()> {
         state.button_state = new_buttonset_state;
         state.wheel_state = new_wheel_state;
 
-        for event in buttonset_events.button0 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button0.clone();
-            process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button0)?;
+        let current_buttonset = state.get_current_buttonset();
+        let current_wheel = state.get_current_wheel();
+
+        let mut final_goto = None;
+
+        if let Some(goto) = process_buttonset_events(&mut enigo, &dev, buttonset_events.button0, &current_buttonset.buttonset.button0, WhichButton::Button0)? {
+            final_goto = Some(goto);
         }
-        for event in buttonset_events.button1 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button1.clone();
-            process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button1)?;
+        if let Some(goto) = process_buttonset_events(&mut enigo, &dev, buttonset_events.button1, &current_buttonset.buttonset.button1, WhichButton::Button1)? {
+            final_goto = Some(goto);
         }
-        for event in buttonset_events.button2 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button2.clone();
-            process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button2)?;
+        if let Some(goto) = process_buttonset_events(&mut enigo, &dev, buttonset_events.button2, &current_buttonset.buttonset.button2, WhichButton::Button2)? {
+            final_goto = Some(goto);
         }
-        for event in buttonset_events.button3 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button3.clone();
-            process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button3)?;
+        if let Some(goto) = process_buttonset_events(&mut enigo, &dev, buttonset_events.button3, &current_buttonset.buttonset.button3, WhichButton::Button3)? {
+            final_goto = Some(goto);
         }
-        for event in buttonset_events.button4 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button4.clone();
-            process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button4)?;
+        if let Some(goto) = process_buttonset_events(&mut enigo, &dev, buttonset_events.button4, &current_buttonset.buttonset.button4, WhichButton::Button4)? {
+            final_goto = Some(goto);
         }
-        for event in buttonset_events.button5 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button5.clone();
-            process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button5)?;
+        if let Some(goto) = process_buttonset_events(&mut enigo, &dev, buttonset_events.button5, &current_buttonset.buttonset.button5, WhichButton::Button5)? {
+            final_goto = Some(goto);
         }
-        for event in buttonset_events.button6 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button6.clone();
-            process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button6)?;
+        if let Some(goto) = process_buttonset_events(&mut enigo, &dev, buttonset_events.button6, &current_buttonset.buttonset.button6, WhichButton::Button6)? {
+            final_goto = Some(goto);
         }
-        for event in buttonset_events.button7 {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button7.clone();
-            process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::Button7)?;
+        if let Some(goto) = process_buttonset_events(&mut enigo, &dev, buttonset_events.button7, &current_buttonset.buttonset.button7, WhichButton::Button7)? {
+            final_goto = Some(goto);
         }
-        for event in buttonset_events.button_extra {
-            let callbacks = state.model.profiles[state.current_profile_index].buttonsets[state.current_buttonset_index].button_extra.clone();
-            process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::ButtonExtra)?;
+        if let Some(goto) = process_buttonset_events(&mut enigo, &dev, buttonset_events.button_extra, &current_buttonset.buttonset.button_extra, WhichButton::ButtonExtra)? {
+            final_goto = Some(goto);
         }
-        for event in wheel_events.wheel_button {
-            let callbacks = state.model.profiles[state.current_profile_index].wheels[state.current_wheel_index].button.clone();
-            process_button_event(&mut enigo, &dev, &event, &callbacks, WhichButton::WheelButton)?;
+        if let Some(goto) = process_buttonset_events(&mut enigo, &dev, wheel_events.wheel_button, &current_wheel.wheel.button, WhichButton::WheelButton)? {
+            final_goto = Some(goto);
+        }
+        if let Some(goto) = wheel_events.wheel.iter().try_fold(None, |_, event| {
+            process_wheel_event(&mut enigo, &dev, &event, &current_wheel)
+        })? {
+            final_goto = Some(goto);
         }
 
-        for event in wheel_events.wheel {
-            let callbacks = state.model.profiles[state.current_profile_index].wheels[state.current_wheel_index].clone();
-            process_wheel_event(&mut enigo, &dev, &event, &callbacks)?;
+        if let Some(goto) = final_goto.clone() {
+            let new_state = state.process_goto(goto)?;
+            println!("current_profile_id: {}, current_buttonset_id: {}, current_wheel_id: {}", new_state.current_profile_id, new_state.current_buttonset_id, new_state.current_wheel_id);
+            if new_state.current_profile_id != state.current_profile_id || new_state.current_buttonset_id != state.current_buttonset_id {
+                for action in &current_buttonset.active.on_exit {
+                    eval(&mut enigo, &dev, action, None)?;
+                }
+                for action in &new_state.get_current_buttonset().active.on_enter {
+                    eval(&mut enigo, &dev, action, None)?;
+                }
+            }
+            if new_state.current_profile_id != state.current_profile_id || new_state.current_wheel_id != state.current_wheel_id {
+                for action in &current_wheel.active.on_exit {
+                    eval(&mut enigo, &dev, action, None)?;
+                }
+                for action in &new_state.get_current_wheel().active.on_enter {
+                    eval(&mut enigo, &dev, action, None)?;
+                }
+            }
+            state = new_state;
         }
     }
 }
