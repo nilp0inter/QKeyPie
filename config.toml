@@ -57,6 +57,27 @@ on_double_click = [
   { ChangeWheel = "Previous" }
 ]
 
+[wheels.mouse_horizontal]
+on_clockwise = [
+  { MoveMouse = [ 10, 0, "Rel" ] }
+]
+on_counterclockwise = [
+  { MoveMouse = [ -10, 0, "Rel" ] }
+]
+on_press = [
+  { ChangeWheel = "Next" }
+]
+
+[wheels.mouse_vertical]
+on_clockwise = [
+  { MoveMouse = [ 0, 10, "Rel" ] }
+]
+on_counterclockwise = [
+  { MoveMouse = [ 0, -10, "Rel" ] }
+]
+on_press = [
+  { ChangeWheel = "Next" }
+]
 
 [buttons.next]
 on_press = [
@@ -88,6 +109,44 @@ on_press = [
 [buttons.say_hi]
 on_press = [ { Text = "Hi!" } ]
 
+[buttons.move_mouse_left]
+on_press = [
+  { MoveMouse = [ -10, 0, "Rel" ] },
+  { ChangeWheel = { Name = "mouse_horizontal" } }
+]
+
+[buttons.move_mouse_right]
+on_press = [
+  { MoveMouse = [ 10, 0, "Rel" ] },
+  { ChangeWheel = { Name = "mouse_horizontal" } }
+]
+
+[buttons.move_mouse_up]
+on_press = [
+  { MoveMouse = [ 0, -10, "Rel" ] },
+  { ChangeWheel = { Name = "mouse_vertical" } }
+]
+
+[buttons.move_mouse_down]
+on_press = [
+  { MoveMouse = [ 0, 10, "Rel" ] },
+  { ChangeWheel = { Name = "mouse_vertical" } }
+]
+[buttons.left_click]
+on_press = [
+  { Button = [ "Left", "Click" ] }
+]
+[buttons.middle_click]
+on_press = [
+  { Button = [ "Middle", "Click" ] }
+]
+[buttons.right_click]
+on_press = [
+  { Button = [ "Right", "Click" ] }
+]
+
+
+
 [buttonsets.bts1]
 on_enter = [
   { SetButtonText = [ "Button0", "Say$Hi!" ] },
@@ -99,7 +158,6 @@ on_enter = [
   { SetButtonText = [ "Button6", "hola$6" ] },
   { SetButtonText = [ "Button7", "hola$7" ] },
 ]
-button0="say_hi"
 button_extra="next"
 
 [buttonsets.bts2]
@@ -115,17 +173,24 @@ on_enter = [
 ]
 button_extra="next"
 
-[buttonsets.bts3]
+[buttonsets.mouse]
 on_enter = [
-  { SetButtonText = [ "Button0", "bts3$0" ] },
-  { SetButtonText = [ "Button1", "bts3$1" ] },
-  { SetButtonText = [ "Button2", "bts3$2" ] },
-  { SetButtonText = [ "Button3", "bts3$3" ] },
-  { SetButtonText = [ "Button4", "bts3$4" ] },
-  { SetButtonText = [ "Button5", "bts3$5" ] },
-  { SetButtonText = [ "Button6", "bts3$6" ] },
-  { SetButtonText = [ "Button7", "bts3$7" ] },
+  { SetButtonText = [ "Button0", "H" ] },
+  { SetButtonText = [ "Button1", "J" ] },
+  { SetButtonText = [ "Button2", "K" ] },
+  { SetButtonText = [ "Button3", "L" ] },
+  { SetButtonText = [ "Button4", "Left$Button" ] },
+  { SetButtonText = [ "Button5", "Middle$Button" ] },
+  { SetButtonText = [ "Button6", "Right$Button" ] },
+  { SetButtonText = [ "Button7", "" ] },
 ]
+button0="move_mouse_left"
+button1="move_mouse_down"
+button2="move_mouse_up"
+button3="move_mouse_right"
+button4="left_click"
+button5="middle_click"
+button6="right_click"
 button_extra="next"
 
 [profiles.niano.buttonsets]
@@ -136,8 +201,9 @@ second="bts2"
 zoom="zoom"
 volume="volume"
 
-[profiles.ploqui.buttonsets]
-first="bts3"
+[profiles.mouse.buttonsets]
+mouse="mouse"
 
-[profiles.ploqui.wheels]
-volume="volume"
+[profiles.mouse.wheels]
+mouse_horizontal="mouse_horizontal"
+mouse_vertical="mouse_vertical"
