@@ -1,3 +1,15 @@
+[macros]
+clean_buttons = [
+  { SetButtonText = [ "Button0", "" ] },
+  { SetButtonText = [ "Button1", "" ] },
+  { SetButtonText = [ "Button2", "" ] },
+  { SetButtonText = [ "Button3", "" ] },
+  { SetButtonText = [ "Button4", "" ] },
+  { SetButtonText = [ "Button5", "" ] },
+  { SetButtonText = [ "Button6", "" ] },
+  { SetButtonText = [ "Button7", "" ] },
+]
+
 [wheels]
 
 [wheels.zoom]
@@ -42,16 +54,16 @@ on_enter = [
   { SetWheelColor = [ 255, 255, 0 ] }
 ]
 on_clockwise = [
-  { Text = "Volume Up" }
+  { Key = [ "VolumeUp", "Click" ] }
 ]
 on_counterclockwise = [
-  { Text = "Volume Down" }
+  { Key = [ "VolumeDown", "Click" ] }
 ]
 on_click = [
   { ChangeWheel = "Next" }
 ]
 on_long_press = [
-  { Text = "Volume 50%" }
+  { Key = [ "VolumeMute", "Click" ] }
 ]
 on_double_click = [
   { ChangeWheel = "Previous" }
@@ -95,14 +107,6 @@ on_double_click = [
 
 [buttons.adios]
 on_press = [
-  { SetButtonText = [ "Button0", "adios$0" ] },
-  { SetButtonText = [ "Button1", "adios$1" ] },
-  { SetButtonText = [ "Button2", "adios$2" ] },
-  { SetButtonText = [ "Button3", "adios$3" ] },
-  { SetButtonText = [ "Button4", "adios$4" ] },
-  { SetButtonText = [ "Button5", "adios$5" ] },
-  { SetButtonText = [ "Button6", "adios$6" ] },
-  { SetButtonText = [ "Button7", "adios$7" ] },
   { Text = "Bye!" }
 ]
 
@@ -146,31 +150,46 @@ on_press = [
 ]
 
 
-
-[buttonsets.bts1]
-on_enter = [
-  { SetButtonText = [ "Button0", "Say$Hi!" ] },
-  { SetButtonText = [ "Button1", "hola$1" ] },
-  { SetButtonText = [ "Button2", "hola$2" ] },
-  { SetButtonText = [ "Button3", "hola$3" ] },
-  { SetButtonText = [ "Button4", "hola$4" ] },
-  { SetButtonText = [ "Button5", "hola$5" ] },
-  { SetButtonText = [ "Button6", "hola$6" ] },
-  { SetButtonText = [ "Button7", "hola$7" ] },
+[buttons.tmux_split_vertical]
+on_press = [
+  { Key = [ "Control", "Press" ] },
+  { Key = [ { Unicode = "b" }, "Click" ] },
+  { Key = [ "Control", "Release" ] },
+  { Key = [ { Unicode = "%" }, "Click" ] },
 ]
+
+[buttons.tmux_split_horizontal]
+on_press = [
+  { Key = [ "Control", "Press" ] },
+  { Key = [ { Unicode = "b" }, "Click" ] },
+  { Key = [ "Control", "Release" ] },
+  { Key = [ { Unicode = "\"" }, "Click" ] },
+]
+
+
+[buttonsets.tmux]
+on_enter = [
+  { Macro = "clean_buttons" },
+  { SetButtonText = [ "Button0", "Split$Vertical" ] },
+  { SetButtonText = [ "Button1", "Split$Horizontal" ] },
+]
+button0 = "tmux_split_vertical"
+button1 = "tmux_split_horizontal"
 button_extra="next"
 
-[buttonsets.bts2]
-on_enter = [
-  { SetButtonText = [ "Button0", "bts2$0" ] },
-  { SetButtonText = [ "Button1", "bts2$1" ] },
-  { SetButtonText = [ "Button2", "bts2$2" ] },
-  { SetButtonText = [ "Button3", "bts2$3" ] },
-  { SetButtonText = [ "Button4", "bts2$4" ] },
-  { SetButtonText = [ "Button5", "bts2$5" ] },
-  { SetButtonText = [ "Button6", "bts2$6" ] },
-  { SetButtonText = [ "Button7", "bts2$7" ] },
+[buttons.neovim_hardmode]
+on_press = [
+  { Key = [ "Escape", "Click" ] },
+  { Text = ":HardTimeToggle" },
+  { Key = [ "Return", "Click" ] },
 ]
+
+[buttonsets.neovim]
+on_enter = [
+  { Macro = "clean_buttons" },
+  { SetButtonText = [ "Button0", "HardMode" ] },
+]
+button0="neovim_hardmode"
 button_extra="next"
 
 [buttonsets.mouse]
@@ -193,11 +212,11 @@ button5="middle_click"
 button6="right_click"
 button_extra="next"
 
-[profiles.niano.buttonsets]
-first="bts1"
-second="bts2"
+[profiles.shell.buttonsets]
+tmux="tmux"
+neovim="neovim"
 
-[profiles.niano.wheels]
+[profiles.shell.wheels]
 zoom="zoom"
 volume="volume"
 

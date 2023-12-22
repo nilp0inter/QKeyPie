@@ -1,6 +1,7 @@
 use indexmap::IndexMap;
 
-use crate::actions::{Action, WheelCallback, WheelSetCallback, ButtonSet, ButtonCallback, ButtonSetCallback, WheelId, ButtonId, ButtonSetId, ProfileId, ActiveCallback};
+use crate::actions::{Action, WheelCallback, WheelSetCallback, ButtonSet, ButtonCallback, ButtonSetCallback, WheelId, ButtonId, ButtonSetId, ProfileId, MacroId, ActiveCallback};
+use crate::actions::NonEnigoAction;
 use crate::config::Config;
 
 type Actions = Vec<Action>;
@@ -16,78 +17,92 @@ pub struct Model {
     pub profiles: IndexMap<ProfileId, Profile>,
 }
 
-fn clone_or_empty<T: Clone>(opt: &Option<Vec<T>>) -> Vec<T> {
-    opt.clone().unwrap_or_else(Vec::new)
+fn replace_macros(opt: &Option<Actions>, macros: &IndexMap<MacroId, Actions>) -> Actions {
+    // opt.clone().unwrap_or_else(Vec::new)
+    opt.clone().unwrap_or_else(Vec::new).into_iter().map(|action| {
+        match action {
+            Action::NonEnigo(NonEnigoAction::Macro(macro_id)) => {
+                match macros.get(&macro_id) {
+                    Some(actions) => actions.clone(),
+                    None => {
+                        println!("Macro {} not found", macro_id);
+                        Vec::new()
+                    },
+                }
+            },
+            _ => vec![action],
+        }
+    }).flatten().collect()
 }
 
-fn get_button_by_id(cfg: &Config, id: &ButtonId) -> anyhow::Result<ButtonCallback<Actions>> {
+fn get_button_by_id(cfg: &Config, id: &ButtonId, macros: &IndexMap<MacroId, Actions>) -> anyhow::Result<ButtonCallback<Actions>> {
     let cfg_button = cfg.buttons.as_ref().and_then(|buttons| buttons.get(id)).ok_or_else(|| anyhow::anyhow!("Button {} not found", id))?;
 
     let button : ButtonCallback<Actions> = ButtonCallback {
-        on_click: clone_or_empty(&cfg_button.on_click),
-        on_double_click: clone_or_empty(&cfg_button.on_double_click),
-        on_triple_click: clone_or_empty(&cfg_button.on_triple_click),
-        on_long_press: clone_or_empty(&cfg_button.on_long_press),
-        on_press: clone_or_empty(&cfg_button.on_press),
-        on_release: clone_or_empty(&cfg_button.on_release),
+        on_click: replace_macros(&cfg_button.on_click, &macros),
+        on_double_click: replace_macros(&cfg_button.on_double_click, &macros),
+        on_triple_click: replace_macros(&cfg_button.on_triple_click, &macros),
+        on_long_press: replace_macros(&cfg_button.on_long_press, &macros),
+        on_press: replace_macros(&cfg_button.on_press, &macros),
+        on_release: replace_macros(&cfg_button.on_release, &macros),
     };
     Ok(button)
 }
 
-fn get_button(cfg: &Config, id: &Option<ButtonId>) -> anyhow::Result<ButtonCallback<Actions>> {
+fn get_button(cfg: &Config, id: &Option<ButtonId>, macros: &IndexMap<MacroId, Actions>) -> anyhow::Result<ButtonCallback<Actions>> {
     match id {
-        Some(id) => get_button_by_id(cfg, id),
+        Some(id) => get_button_by_id(cfg, id, macros),
         None => Ok(ButtonCallback::default()),
     }
 }
 
-fn get_wheel(cfg: &Config, id: &WheelId) -> anyhow::Result<WheelSetCallback<Actions>> {
+fn get_wheel(cfg: &Config, id: &WheelId, macros: &IndexMap<MacroId, Actions>) -> anyhow::Result<WheelSetCallback<Actions>> {
     let cfg_wheel = cfg.wheels.as_ref().and_then(|wheels| wheels.get(id)).ok_or_else(|| anyhow::anyhow!("Wheel {} not found", id))?;
 
     let wheel = WheelSetCallback {
         wheel: WheelCallback {
-            on_clockwise: clone_or_empty(&cfg_wheel.wheel.on_clockwise),
-            on_clockwise_start: clone_or_empty(&cfg_wheel.wheel.on_clockwise_start),
-            on_clockwise_stop: clone_or_empty(&cfg_wheel.wheel.on_clockwise_stop),
-            on_counterclockwise: clone_or_empty(&cfg_wheel.wheel.on_counterclockwise),
-            on_counterclockwise_start: clone_or_empty(&cfg_wheel.wheel.on_counterclockwise_start),
-            on_counterclockwise_stop: clone_or_empty(&cfg_wheel.wheel.on_counterclockwise_stop),
+            on_clockwise: replace_macros(&cfg_wheel.wheel.on_clockwise, &macros),
+            on_clockwise_start: replace_macros(&cfg_wheel.wheel.on_clockwise_start, &macros),
+            on_clockwise_stop: replace_macros(&cfg_wheel.wheel.on_clockwise_stop, &macros),
+            on_counterclockwise: replace_macros(&cfg_wheel.wheel.on_counterclockwise, &macros),
+            on_counterclockwise_start: replace_macros(&cfg_wheel.wheel.on_counterclockwise_start, &macros),
+            on_counterclockwise_stop: replace_macros(&cfg_wheel.wheel.on_counterclockwise_stop, &macros),
             button: ButtonCallback {
-                on_click: clone_or_empty(&cfg_wheel.wheel.button.on_click),
-                on_double_click: clone_or_empty(&cfg_wheel.wheel.button.on_double_click),
-                on_triple_click: clone_or_empty(&cfg_wheel.wheel.button.on_triple_click),
-                on_long_press: clone_or_empty(&cfg_wheel.wheel.button.on_long_press),
-                on_press: clone_or_empty(&cfg_wheel.wheel.button.on_press),
-                on_release: clone_or_empty(&cfg_wheel.wheel.button.on_release),
+                on_click: replace_macros(&cfg_wheel.wheel.button.on_click, &macros),
+                on_double_click: replace_macros(&cfg_wheel.wheel.button.on_double_click, &macros),
+                on_triple_click: replace_macros(&cfg_wheel.wheel.button.on_triple_click, &macros),
+                on_long_press: replace_macros(&cfg_wheel.wheel.button.on_long_press, &macros),
+                on_press: replace_macros(&cfg_wheel.wheel.button.on_press, &macros),
+                on_release: replace_macros(&cfg_wheel.wheel.button.on_release, &macros),
             },
         },
         active: ActiveCallback {
-            on_enter: clone_or_empty(&cfg_wheel.active.on_enter),
-            on_exit: clone_or_empty(&cfg_wheel.active.on_exit),
+            on_enter: replace_macros(&cfg_wheel.active.on_enter, &macros),
+            on_exit: replace_macros(&cfg_wheel.active.on_exit, &macros),
         },
     };
 
     Ok(wheel)
 }
 
-fn get_buttonset(cfg: &Config, id: &ButtonSetId) -> anyhow::Result<ButtonSetCallback<ButtonCallback<Actions>,Actions>> {
+fn get_buttonset(cfg: &Config, id: &ButtonSetId, macros: &IndexMap<MacroId, Actions>) -> anyhow::Result<ButtonSetCallback<ButtonCallback<Actions>,Actions>> {
     let cfg_buttonset = cfg.buttonsets.as_ref().and_then(|buttonsets| buttonsets.get(id)).ok_or_else(|| anyhow::anyhow!("Buttonset {} not found", id))?;
 
     let buttonset = ButtonSetCallback {
         buttonset: ButtonSet {
-            button0: get_button(cfg, &cfg_buttonset.buttonset.button0)?,
-            button1: get_button(cfg, &cfg_buttonset.buttonset.button1)?,
-            button2: get_button(cfg, &cfg_buttonset.buttonset.button2)?,
-            button3: get_button(cfg, &cfg_buttonset.buttonset.button3)?,
-            button4: get_button(cfg, &cfg_buttonset.buttonset.button4)?,
-            button5: get_button(cfg, &cfg_buttonset.buttonset.button5)?,
-            button6: get_button(cfg, &cfg_buttonset.buttonset.button6)?,
-            button7: get_button(cfg, &cfg_buttonset.buttonset.button7)?,
-            button_extra: get_button(cfg, &cfg_buttonset.buttonset.button_extra)?,
+            button0: get_button(cfg, &cfg_buttonset.buttonset.button0, &macros)?,
+            button1: get_button(cfg, &cfg_buttonset.buttonset.button1, &macros)?,
+            button2: get_button(cfg, &cfg_buttonset.buttonset.button2, &macros)?,
+            button3: get_button(cfg, &cfg_buttonset.buttonset.button3, &macros)?,
+            button4: get_button(cfg, &cfg_buttonset.buttonset.button4, &macros)?,
+            button5: get_button(cfg, &cfg_buttonset.buttonset.button5, &macros)?,
+            button6: get_button(cfg, &cfg_buttonset.buttonset.button6, &macros)?,
+            button7: get_button(cfg, &cfg_buttonset.buttonset.button7, &macros)?,
+            button_extra: get_button(cfg, &cfg_buttonset.buttonset.button_extra, &macros)?,
         },
         active: ActiveCallback {
-            on_enter: clone_or_empty(&cfg_buttonset.active.on_enter),
-            on_exit: clone_or_empty(&cfg_buttonset.active.on_exit),
+            on_enter: replace_macros(&cfg_buttonset.active.on_enter, &macros),
+            on_exit: replace_macros(&cfg_buttonset.active.on_exit, &macros),
         },
     };
 
@@ -100,14 +115,19 @@ pub fn from_config(cfg: Config) -> anyhow::Result<Model> {
     for (cfg_profile_name, cfg_profile) in cfg.clone().profiles.unwrap_or_default() {
         let mut buttonsets = IndexMap::new();
         let mut wheels = IndexMap::new();
+        let mut macros = IndexMap::new();
+
+        for (cfg_macro_name, cfg_macro_actions) in cfg.macros.clone().unwrap_or_default() {
+            macros.insert(cfg_macro_name, cfg_macro_actions.unwrap_or_default());
+        }
 
         for (cfg_buttonset_name, cfg_buttonset_id) in cfg_profile.buttonsets.unwrap_or_default() {
-            let buttonset = get_buttonset(&cfg.clone(), &cfg_buttonset_id)?;
+            let buttonset = get_buttonset(&cfg.clone(), &cfg_buttonset_id, &macros)?;
             buttonsets.insert(cfg_buttonset_name, buttonset);
         }
 
         for (cfg_wheel_name, cfg_wheel_id) in cfg_profile.wheels.unwrap_or_default() {
-            let wheel = get_wheel(&cfg, &cfg_wheel_id)?;
+            let wheel = get_wheel(&cfg, &cfg_wheel_id, &macros)?;
             wheels.insert(cfg_wheel_name, wheel);
         }
 

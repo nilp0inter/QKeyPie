@@ -12,6 +12,7 @@ pub type ButtonId = String;
 pub type WheelId = String;
 pub type ButtonSetId = String;
 pub type ProfileId = String;
+pub type MacroId = String;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum WhichButton {
@@ -54,6 +55,7 @@ pub enum NonEnigoAction {
     ChangeProfile(ChangeRef, ChangeRef, ChangeRef),
     ChangeWheel(ChangeRef),
     ChangeButtonSet(ChangeRef),
+    Macro(MacroId),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

@@ -86,6 +86,9 @@ fn eval(enigo: &mut Enigo, dev: &QKDevice, action: &Action, current_button: Opti
                 wheel: ChangeRef::This,
             }))
         },
+        Action::NonEnigo(NonEnigoAction::Macro(_)) => {
+            anyhow::bail!("Macro action not resolved");
+        },
     }
 }
 
@@ -186,6 +189,18 @@ pub fn run(model: Model) -> anyhow::Result<()> {
 
     dev.set_screen_orientation(ScreenOrientation::Rotate180)?; 
     dev.set_wheel_speed(xencelabs_quick_keys::WheelSpeed::Slower)?;
+
+    // Enter the initial state
+    {
+        let current_buttonset = state.get_current_buttonset();
+        let current_wheel = state.get_current_wheel();
+        for action in &current_buttonset.active.on_enter {
+            eval(&mut enigo, &dev, action, None)?;
+        }
+        for action in &current_wheel.active.on_enter {
+            eval(&mut enigo, &dev, action, None)?;
+        }
+    }
 
     loop {
         let ev = dev.read_timeout(300)?;
