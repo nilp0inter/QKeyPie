@@ -39,10 +39,9 @@ pub enum ChangeRef {
 }
 
 #[derive(Debug, Clone)]
-pub struct GoTo {
-    pub profile: ChangeRef,
-    pub buttonset: ChangeRef,
-    pub wheel: ChangeRef,
+pub enum GoTo {
+    Swap,
+    Switch(ChangeRef, ChangeRef, ChangeRef),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -54,6 +53,7 @@ pub enum NonEnigoAction {
     ChangeProfile(ChangeRef, ChangeRef, ChangeRef),
     ChangeWheel(ChangeRef),
     ChangeButtonSet(ChangeRef),
+    Swap,
     Macro(MacroId),
 }
 

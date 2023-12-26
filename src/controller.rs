@@ -66,25 +66,16 @@ fn eval(enigo: &mut Enigo, dev: &QKDevice, action: &Action, current_button: Opti
             }
         },
         Action::NonEnigo(NonEnigoAction::ChangeProfile(profile, buttonset, wheel)) => {
-            Ok(Some(GoTo {
-                profile: profile.clone(),
-                buttonset: buttonset.clone(),
-                wheel: wheel.clone(),
-            }))
+            Ok(Some(GoTo::Switch(profile.clone(), buttonset.clone(), wheel.clone())))
         },
         Action::NonEnigo(NonEnigoAction::ChangeWheel(wheel)) => {
-            Ok(Some(GoTo {
-                profile: ChangeRef::This,
-                buttonset: ChangeRef::This,
-                wheel: wheel.clone(),
-            }))
+            Ok(Some(GoTo::Switch(ChangeRef::This, ChangeRef::This, wheel.clone())))
         },
         Action::NonEnigo(NonEnigoAction::ChangeButtonSet(buttonset)) => {
-            Ok(Some(GoTo {
-                profile: ChangeRef::This,
-                buttonset: buttonset.clone(),
-                wheel: ChangeRef::This,
-            }))
+            Ok(Some(GoTo::Switch(ChangeRef::This, buttonset.clone(), ChangeRef::This)))
+        },
+        Action::NonEnigo(NonEnigoAction::Swap) => {
+            Ok(Some(GoTo::Swap))
         },
         Action::NonEnigo(NonEnigoAction::Macro(_)) => {
             anyhow::bail!("Macro action not resolved");
@@ -122,9 +113,6 @@ fn process_button_event(enigo: &mut Enigo, dev: &QKDevice, event: &ButtonEvent, 
                     })
                 },
                 3 => {
-                    // for action in &callbacks.on_triple_click {
-                    //     eval(enigo, dev, action, Some(current_button.clone()))?;
-                    // }
                     callbacks.on_triple_click.iter().try_fold(None, |acc, action| {
                         eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
                     })

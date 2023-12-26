@@ -70,6 +70,9 @@ on_double_click = [
 ]
 
 [wheels.mouse_horizontal]
+on_enter = [
+  { SetWheelColor = [ 255, 192, 203 ] }
+]
 on_clockwise = [
   { MoveMouse = [ 10, 0, "Rel" ] }
 ]
@@ -81,6 +84,9 @@ on_press = [
 ]
 
 [wheels.mouse_vertical]
+on_enter = [
+  { SetWheelColor = [ 255, 192, 203 ] }
+]
 on_clockwise = [
   { MoveMouse = [ 0, 10, "Rel" ] }
 ]
@@ -92,11 +98,17 @@ on_press = [
 ]
 
 [buttons.next]
-on_press = [
+on_click = [
   { ChangeButtonSet = "Next" }
 ]
-on_long_press = [
+on_double_click = [
+  { ChangeButtonSet = "Previous" }
+]
+on_triple_click = [
   { ChangeProfile = [ "Next", "First", "First" ] }
+]
+on_long_press = [
+  "Swap"
 ]
 
 
