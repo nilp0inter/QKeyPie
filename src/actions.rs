@@ -64,7 +64,7 @@ pub enum Action {
     NonEnigo(NonEnigoAction),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct ButtonCallback<T> {
     pub on_click: T,
@@ -95,13 +95,13 @@ pub struct WheelSetCallback<T> {
     pub active: ActiveCallback<T>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct ActiveCallback<T> {
     pub on_enter: T,
     pub on_exit: T,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct ButtonSet<T> {
     pub button0: T,
     pub button1: T,
@@ -122,38 +122,11 @@ pub struct ButtonSetCallback<T1, T2> {
     pub active: ActiveCallback<T2>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct WheelSet<T1, T2> {
     pub wheel: T1,
     pub wheel_button: T2,
-}
-
-impl<T> Default for ButtonSet<T>
-where T: Default {
-    fn default() -> Self {
-        ButtonSet {
-            button0: Default::default(),
-            button1: Default::default(),
-            button2: Default::default(),
-            button3: Default::default(),
-            button4: Default::default(),
-            button5: Default::default(),
-            button6: Default::default(),
-            button7: Default::default(),
-            button_extra: Default::default(),
-        }
-    }
-}
-
-impl<T1, T2> Default for WheelSet<T1, T2>
-where T1: Default, T2: Default {
-    fn default() -> Self {
-        WheelSet {
-            wheel: Default::default(),
-            wheel_button: Default::default(),
-        }
-    }
 }
 
 impl From<xencelabs_quick_keys::ButtonState> for ButtonSet<events::ButtonState> {
@@ -259,27 +232,5 @@ impl WheelSet<events::WheelStateMachine, events::ButtonStateMachine> {
             wheel: wheel_events,
             wheel_button: wheel_button_events,
         })
-    }
-}
-
-impl Default for ActiveCallback<Vec<Action>> {
-    fn default() -> Self {
-        ActiveCallback {
-            on_enter: vec![],
-            on_exit: vec![],
-        }
-    }
-}
-
-impl Default for ButtonCallback<Vec<Action>> {
-    fn default() -> Self {
-        ButtonCallback {
-            on_click: vec![],
-            on_double_click: vec![],
-            on_triple_click: vec![],
-            on_long_press: vec![],
-            on_press: vec![],
-            on_release: vec![],
-        }
     }
 }
