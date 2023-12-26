@@ -176,7 +176,7 @@ fn process_wheel_event(enigo: &mut Enigo, dev: &QKDevice, event: &WheelEvent, ca
 
 fn process_buttonset_events(enigo: &mut Enigo, dev: &QKDevice, events: Vec<ButtonEvent>, callbacks: &ButtonCallback<Vec<Action>>, current_button: WhichButton) -> anyhow::Result<Option<GoTo>> {
     events.iter().try_fold(None, |acc, event| {
-        process_button_event(enigo, &dev, &event, &callbacks, current_button.clone()).map(|opt_value| opt_value.or(acc))
+        process_button_event(enigo, dev, event, callbacks, current_button.clone()).map(|opt_value| opt_value.or(acc))
     })
 }
 
@@ -208,8 +208,8 @@ pub fn run(model: Model) -> anyhow::Result<()> {
         let wheel_event : WheelSet<WheelState, ButtonState> = ev.clone().into();
 
         let now = time::Instant::now();
-        let (new_buttonset_state, buttonset_events) = state.button_state.transition(buttonset_event.into(), now);
-        let (new_wheel_state, wheel_events) = state.wheel_state.transition(wheel_event.into(), now);
+        let (new_buttonset_state, buttonset_events) = state.button_state.transition(buttonset_event, now);
+        let (new_wheel_state, wheel_events) = state.wheel_state.transition(wheel_event, now);
 
         state.button_state = new_buttonset_state;
         state.wheel_state = new_wheel_state;
@@ -250,7 +250,7 @@ pub fn run(model: Model) -> anyhow::Result<()> {
             final_goto = Some(goto);
         }
         if let Some(goto) = wheel_events.wheel.iter().try_fold(None, |_, event| {
-            process_wheel_event(&mut enigo, &dev, &event, &current_wheel)
+            process_wheel_event(&mut enigo, &dev, event, current_wheel)
         })? {
             final_goto = Some(goto);
         }

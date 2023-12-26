@@ -18,8 +18,7 @@ pub struct Model {
 }
 
 fn replace_macros(opt: &Option<Actions>, macros: &IndexMap<MacroId, Actions>) -> Actions {
-    // opt.clone().unwrap_or_else(Vec::new)
-    opt.clone().unwrap_or_else(Vec::new).into_iter().map(|action| {
+    opt.clone().unwrap_or_default().into_iter().flat_map(|action| {
         match action {
             Action::NonEnigo(NonEnigoAction::Macro(macro_id)) => {
                 match macros.get(&macro_id) {
@@ -32,19 +31,19 @@ fn replace_macros(opt: &Option<Actions>, macros: &IndexMap<MacroId, Actions>) ->
             },
             _ => vec![action],
         }
-    }).flatten().collect()
+    }).collect()
 }
 
 fn get_button_by_id(cfg: &Config, id: &ButtonId, macros: &IndexMap<MacroId, Actions>) -> anyhow::Result<ButtonCallback<Actions>> {
     let cfg_button = cfg.buttons.as_ref().and_then(|buttons| buttons.get(id)).ok_or_else(|| anyhow::anyhow!("Button {} not found", id))?;
 
     let button : ButtonCallback<Actions> = ButtonCallback {
-        on_click: replace_macros(&cfg_button.on_click, &macros),
-        on_double_click: replace_macros(&cfg_button.on_double_click, &macros),
-        on_triple_click: replace_macros(&cfg_button.on_triple_click, &macros),
-        on_long_press: replace_macros(&cfg_button.on_long_press, &macros),
-        on_press: replace_macros(&cfg_button.on_press, &macros),
-        on_release: replace_macros(&cfg_button.on_release, &macros),
+        on_click: replace_macros(&cfg_button.on_click, macros),
+        on_double_click: replace_macros(&cfg_button.on_double_click, macros),
+        on_triple_click: replace_macros(&cfg_button.on_triple_click, macros),
+        on_long_press: replace_macros(&cfg_button.on_long_press, macros),
+        on_press: replace_macros(&cfg_button.on_press, macros),
+        on_release: replace_macros(&cfg_button.on_release, macros),
     };
     Ok(button)
 }
@@ -61,24 +60,24 @@ fn get_wheel(cfg: &Config, id: &WheelId, macros: &IndexMap<MacroId, Actions>) ->
 
     let wheel = WheelSetCallback {
         wheel: WheelCallback {
-            on_clockwise: replace_macros(&cfg_wheel.wheel.on_clockwise, &macros),
-            on_clockwise_start: replace_macros(&cfg_wheel.wheel.on_clockwise_start, &macros),
-            on_clockwise_stop: replace_macros(&cfg_wheel.wheel.on_clockwise_stop, &macros),
-            on_counterclockwise: replace_macros(&cfg_wheel.wheel.on_counterclockwise, &macros),
-            on_counterclockwise_start: replace_macros(&cfg_wheel.wheel.on_counterclockwise_start, &macros),
-            on_counterclockwise_stop: replace_macros(&cfg_wheel.wheel.on_counterclockwise_stop, &macros),
+            on_clockwise: replace_macros(&cfg_wheel.wheel.on_clockwise, macros),
+            on_clockwise_start: replace_macros(&cfg_wheel.wheel.on_clockwise_start, macros),
+            on_clockwise_stop: replace_macros(&cfg_wheel.wheel.on_clockwise_stop, macros),
+            on_counterclockwise: replace_macros(&cfg_wheel.wheel.on_counterclockwise, macros),
+            on_counterclockwise_start: replace_macros(&cfg_wheel.wheel.on_counterclockwise_start, macros),
+            on_counterclockwise_stop: replace_macros(&cfg_wheel.wheel.on_counterclockwise_stop, macros),
             button: ButtonCallback {
-                on_click: replace_macros(&cfg_wheel.wheel.button.on_click, &macros),
-                on_double_click: replace_macros(&cfg_wheel.wheel.button.on_double_click, &macros),
-                on_triple_click: replace_macros(&cfg_wheel.wheel.button.on_triple_click, &macros),
-                on_long_press: replace_macros(&cfg_wheel.wheel.button.on_long_press, &macros),
-                on_press: replace_macros(&cfg_wheel.wheel.button.on_press, &macros),
-                on_release: replace_macros(&cfg_wheel.wheel.button.on_release, &macros),
+                on_click: replace_macros(&cfg_wheel.wheel.button.on_click, macros),
+                on_double_click: replace_macros(&cfg_wheel.wheel.button.on_double_click, macros),
+                on_triple_click: replace_macros(&cfg_wheel.wheel.button.on_triple_click, macros),
+                on_long_press: replace_macros(&cfg_wheel.wheel.button.on_long_press, macros),
+                on_press: replace_macros(&cfg_wheel.wheel.button.on_press, macros),
+                on_release: replace_macros(&cfg_wheel.wheel.button.on_release, macros),
             },
         },
         active: ActiveCallback {
-            on_enter: replace_macros(&cfg_wheel.active.on_enter, &macros),
-            on_exit: replace_macros(&cfg_wheel.active.on_exit, &macros),
+            on_enter: replace_macros(&cfg_wheel.active.on_enter, macros),
+            on_exit: replace_macros(&cfg_wheel.active.on_exit, macros),
         },
     };
 
@@ -90,19 +89,19 @@ fn get_buttonset(cfg: &Config, id: &ButtonSetId, macros: &IndexMap<MacroId, Acti
 
     let buttonset = ButtonSetCallback {
         buttonset: ButtonSet {
-            button0: get_button(cfg, &cfg_buttonset.buttonset.button0, &macros)?,
-            button1: get_button(cfg, &cfg_buttonset.buttonset.button1, &macros)?,
-            button2: get_button(cfg, &cfg_buttonset.buttonset.button2, &macros)?,
-            button3: get_button(cfg, &cfg_buttonset.buttonset.button3, &macros)?,
-            button4: get_button(cfg, &cfg_buttonset.buttonset.button4, &macros)?,
-            button5: get_button(cfg, &cfg_buttonset.buttonset.button5, &macros)?,
-            button6: get_button(cfg, &cfg_buttonset.buttonset.button6, &macros)?,
-            button7: get_button(cfg, &cfg_buttonset.buttonset.button7, &macros)?,
-            button_extra: get_button(cfg, &cfg_buttonset.buttonset.button_extra, &macros)?,
+            button0: get_button(cfg, &cfg_buttonset.buttonset.button0, macros)?,
+            button1: get_button(cfg, &cfg_buttonset.buttonset.button1, macros)?,
+            button2: get_button(cfg, &cfg_buttonset.buttonset.button2, macros)?,
+            button3: get_button(cfg, &cfg_buttonset.buttonset.button3, macros)?,
+            button4: get_button(cfg, &cfg_buttonset.buttonset.button4, macros)?,
+            button5: get_button(cfg, &cfg_buttonset.buttonset.button5, macros)?,
+            button6: get_button(cfg, &cfg_buttonset.buttonset.button6, macros)?,
+            button7: get_button(cfg, &cfg_buttonset.buttonset.button7, macros)?,
+            button_extra: get_button(cfg, &cfg_buttonset.buttonset.button_extra, macros)?,
         },
         active: ActiveCallback {
-            on_enter: replace_macros(&cfg_buttonset.active.on_enter, &macros),
-            on_exit: replace_macros(&cfg_buttonset.active.on_exit, &macros),
+            on_enter: replace_macros(&cfg_buttonset.active.on_enter, macros),
+            on_exit: replace_macros(&cfg_buttonset.active.on_exit, macros),
         },
     };
 

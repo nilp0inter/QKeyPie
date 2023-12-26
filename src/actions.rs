@@ -1,4 +1,3 @@
-use xencelabs_quick_keys;
 use std::time::Instant;
 
 use enigo::agent;

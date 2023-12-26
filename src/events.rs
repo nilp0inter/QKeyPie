@@ -18,8 +18,9 @@ impl From<bool> for ButtonState {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub enum ButtonStateMachine {
+    #[default]
     Idle,
     Pressed(Instant),
     LongPressed,
@@ -27,12 +28,7 @@ pub enum ButtonStateMachine {
     NonFirstPressed(Instant, u8),
 }
 
-impl Default for ButtonStateMachine {
-    fn default() -> Self {
-        ButtonStateMachine::Idle
-    }
-}
-
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug)]
 pub enum ButtonEvent {
     OnPress,
@@ -42,8 +38,8 @@ pub enum ButtonEvent {
 }
 
 impl ButtonStateMachine {
-    pub fn transition(&self, event: ButtonState, when: Instant) -> (Self, Vec<ButtonEvent>) {
-        match (self.clone(), event) {
+    pub fn transition(self, event: ButtonState, when: Instant) -> (Self, Vec<ButtonEvent>) {
+        match (self, event) {
             (ButtonStateMachine::Idle, ButtonState::Pressed) => {
                 (ButtonStateMachine::Pressed(when), vec![ButtonEvent::OnPress])
             },
@@ -59,7 +55,7 @@ impl ButtonStateMachine {
                 }
             }
             (ButtonStateMachine::Pressed(pressed_at), _) => {
-                let duration = when.duration_since(pressed_at.clone());
+                let duration = when.duration_since(pressed_at);
                 if duration.as_millis() > 500 {
                     (ButtonStateMachine::LongPressed, vec![ButtonEvent::OnLongPress])
                 } else {
@@ -99,17 +95,12 @@ pub enum WheelState {
     RotatingCounterClockwise,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub enum WheelStateMachine {
+    #[default]
     Idle,
     RotatingClockwise(Instant),
     RotatingCounterClockwise(Instant),
-}
-
-impl Default for WheelStateMachine {
-    fn default() -> Self {
-        WheelStateMachine::Idle
-    }
 }
 
 impl From<xencelabs_quick_keys::Event> for WheelState {
@@ -126,6 +117,7 @@ impl From<xencelabs_quick_keys::Event> for WheelState {
     }
 }
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug)]
 pub enum WheelEvent {
     OnRotateClockwiseStart,
@@ -137,8 +129,8 @@ pub enum WheelEvent {
 }
 
 impl WheelStateMachine {
-    pub fn transition(&self, event: WheelState, when: Instant) -> (Self, Vec<WheelEvent>) {
-        match (self.clone(), event) {
+    pub fn transition(self, event: WheelState, when: Instant) -> (Self, Vec<WheelEvent>) {
+        match (self, event) {
             (WheelStateMachine::Idle, WheelState::Unknown) => {
                 (WheelStateMachine::Idle, vec![])
             },
