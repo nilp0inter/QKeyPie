@@ -285,7 +285,7 @@ pub fn run(model: Model) -> anyhow::Result<()> {
     }
 
     loop {
-        let ev = dev.read_timeout(400)?;
+        let ev = dev.read_timeout(100)?;
         let buttonset_event : ButtonSet<ButtonState> = ev.clone().into();
         let wheel_event : WheelSet<WheelState, ButtonState> = ev.clone().into();
 
