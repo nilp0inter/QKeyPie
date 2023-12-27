@@ -46,6 +46,8 @@ pub enum GoTo {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum NonEnigoAction {
+    Debug(String),
+    Run(Vec<String>),
     Sleep(u64),
     SetButtonText(WhichButton, String),
     SetWheelColor(u8, u8, u8),

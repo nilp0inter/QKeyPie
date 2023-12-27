@@ -262,7 +262,33 @@ button5="middle_click"
 button6="right_click"
 button_extra="next"
 
+[buttons.test_button]
+on_press = [ { Debug = "on_press" } ]
+on_release = [ { Debug = "on_release" } ]
+on_click_press = [ { Debug = "on_click_press" } ]
+on_click = [ { Debug = "on_click" } ]
+on_click_release = [ { Debug = "on_click_release" } ]
+
+on_double_click_press = [ { Debug = "on_double_click_press" } ]
+on_double_click = [ { Debug = "on_double_click" } ]
+on_double_click_release = [ { Debug = "on_double_click_release" } ]
+
+on_triple_click_press = [ { Debug = "on_triple_click_press" } ]
+on_triple_click = [ { Debug = "on_triple_click" } ]
+on_triple_click_release = [ { Debug = "on_triple_click_release" } ]
+
+on_long_press = [ { Debug = "on_long_press" } ]
+
+[buttonsets.test]
+on_enter = [
+  { Macro = "clean_buttons" },
+  { SetButtonText = [ "Button0", "* Test *" ] },
+]
+button0="test_button"
+button_extra="next"
+
 [profiles.shell.buttonsets]
+test="test"
 tmux="tmux"
 neovim="neovim"
 

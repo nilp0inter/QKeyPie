@@ -80,6 +80,20 @@ fn eval(enigo: &mut Enigo, dev: &QKDevice, action: &Action, current_button: Opti
         Action::NonEnigo(NonEnigoAction::Macro(_)) => {
             anyhow::bail!("Macro action not resolved");
         },
+        Action::NonEnigo(NonEnigoAction::Debug(txt)) => {
+            println!("Debug: {}", txt);
+            Ok(None)
+        },
+        Action::NonEnigo(NonEnigoAction::Run(args)) => {
+            let mut cmd = std::process::Command::new(&args[0]);
+            for arg in &args[1..] {
+                cmd.arg(arg);
+            }
+            match cmd.spawn() {
+                Ok(_) => Ok(None),
+                Err(e) => anyhow::bail!("error: {:?}", e),
+            }
+        },
     }
 }
 
