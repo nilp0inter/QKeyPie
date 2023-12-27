@@ -240,8 +240,12 @@ pub fn run(model: Model) -> anyhow::Result<()> {
 
     // Enter the initial state
     {
+        let current_profile = state.get_current_profile();
         let current_buttonset = state.get_current_buttonset();
         let current_wheel = state.get_current_wheel();
+        for action in &current_profile.active.on_enter {
+            eval(&mut enigo, &dev, action, None)?;
+        }
         for action in &current_buttonset.active.on_enter {
             eval(&mut enigo, &dev, action, None)?;
         }
@@ -262,6 +266,7 @@ pub fn run(model: Model) -> anyhow::Result<()> {
         state.button_state = new_buttonset_state;
         state.wheel_state = new_wheel_state;
 
+        let current_profile = state.get_current_profile();
         let current_buttonset = state.get_current_buttonset();
         let current_wheel = state.get_current_wheel();
 
@@ -306,6 +311,14 @@ pub fn run(model: Model) -> anyhow::Result<()> {
         if let Some(goto) = final_goto.clone() {
             let new_state = state.process_goto(goto)?;
             println!("current_profile_id: {}, current_buttonset_id: {}, current_wheel_id: {}", new_state.current_profile_id, new_state.current_buttonset_id, new_state.current_wheel_id);
+            if new_state.current_profile_id != state.current_profile_id {
+                for action in &current_profile.active.on_exit {
+                    eval(&mut enigo, &dev, action, None)?;
+                }
+                for action in &new_state.get_current_profile().active.on_enter {
+                    eval(&mut enigo, &dev, action, None)?;
+                }
+            }
             if new_state.current_profile_id != state.current_profile_id || new_state.current_buttonset_id != state.current_buttonset_id {
                 for action in &current_buttonset.active.on_exit {
                     eval(&mut enigo, &dev, action, None)?;

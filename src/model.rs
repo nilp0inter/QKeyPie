@@ -1,20 +1,18 @@
 use indexmap::IndexMap;
 
-use crate::actions::{Action, WheelCallback, WheelSetCallback, ButtonSet, ButtonCallback, ButtonSetCallback, WheelId, ButtonId, ButtonSetId, ProfileId, MacroId, ActiveCallback};
+use crate::actions::{Action, WheelCallback, WheelSetCallback, ButtonSet, ButtonCallback, ButtonSetCallback, ProfileCallback, WheelId, ButtonId, ButtonSetId, ProfileId, MacroId, ActiveCallback};
 use crate::actions::NonEnigoAction;
 use crate::config::Config;
 
 type Actions = Vec<Action>;
 
-#[derive(Debug, Clone)]
-pub struct Profile {
-    pub buttonsets: IndexMap<ButtonSetId, ButtonSetCallback<ButtonCallback<Actions>,Actions>>,
-    pub wheels: IndexMap<WheelId, WheelSetCallback<Actions>>,
-}
+type ButtonSetModel = ButtonSetCallback<ButtonCallback<Actions>,Actions>;
+type WheelSetModel = WheelSetCallback<Actions>;
+pub type ProfileModel = ProfileCallback<IndexMap<ButtonSetId, ButtonSetModel>, IndexMap<WheelId, WheelSetModel>, Actions>;
 
 #[derive(Debug, Clone)]
 pub struct Model {
-    pub profiles: IndexMap<ProfileId, Profile>,
+    pub profiles: IndexMap<ProfileId, ProfileModel>,
 }
 
 fn replace_macros(opt: &Option<Actions>, macros: &IndexMap<MacroId, Actions>) -> Actions {
@@ -142,9 +140,13 @@ pub fn from_config(cfg: Config) -> anyhow::Result<Model> {
             wheels.insert(cfg_wheel_name, wheel);
         }
 
-        profiles.insert(cfg_profile_name, Profile {
+        profiles.insert(cfg_profile_name, ProfileModel {
             buttonsets,
             wheels,
+            active: ActiveCallback {
+                on_enter: replace_macros(&cfg_profile.active.on_enter, &macros),
+                on_exit: replace_macros(&cfg_profile.active.on_exit, &macros),
+            },
         });
     }
 

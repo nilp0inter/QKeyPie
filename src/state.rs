@@ -50,7 +50,7 @@ impl State {
         })
     }
 
-    pub fn get_current_profile(&self) -> &model::Profile {
+    pub fn get_current_profile(&self) -> &model::ProfileModel {
         self.model.profiles.get(&self.current_profile_id).unwrap()
     }
 

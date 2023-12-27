@@ -246,3 +246,12 @@ impl WheelSet<events::WheelStateMachine, events::ButtonStateMachine> {
         })
     }
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct ProfileCallback<T1, T2, T3> {
+    pub buttonsets: T1,
+    pub wheels: T2,
+    #[serde(flatten)]
+    pub active: ActiveCallback<T3>,
+}
