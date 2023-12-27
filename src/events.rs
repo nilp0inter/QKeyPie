@@ -73,7 +73,7 @@ impl ButtonStateMachine {
             }
             (ButtonStateMachine::WaitingForClick(pressed_at, count), _) => {
                 let duration = when.duration_since(pressed_at);
-                if duration.as_millis() < 250 {
+                if duration.as_millis() < 400 {
                     (ButtonStateMachine::WaitingForClick(pressed_at, count), vec![])
                 } else {
                     (ButtonStateMachine::Idle, vec![ButtonEvent::OnClick(count)])
