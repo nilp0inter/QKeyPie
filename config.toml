@@ -39,7 +39,7 @@ on_counterclockwise_stop = [
 on_click = [
   { ChangeWheel = "Next" }
 ]
-on_double_click = [
+on_double_click_press = [
   { ChangeWheel = "Previous" }
 ]
 on_long_press = [
@@ -65,7 +65,7 @@ on_click = [
 on_long_press = [
   { Key = [ "VolumeMute", "Click" ] }
 ]
-on_double_click = [
+on_double_click_press = [
   { ChangeWheel = "Previous" }
 ]
 
@@ -97,19 +97,47 @@ on_press = [
   { ChangeWheel = "Next" }
 ]
 
+[wheels.mouse_diagonal_1]
+on_enter = [
+  { SetWheelColor = [ 255, 192, 203 ] }
+]
+on_clockwise = [
+  { MoveMouse = [ 10, 10, "Rel" ] }
+]
+on_counterclockwise = [
+  { MoveMouse = [ -10, -10, "Rel" ] }
+]
+on_press = [
+  { ChangeWheel = "Next" }
+]
+
+[wheels.mouse_diagonal_2]
+on_enter = [
+  { SetWheelColor = [ 255, 192, 203 ] }
+]
+on_clockwise = [
+  { MoveMouse = [ 10, -10, "Rel" ] }
+]
+on_counterclockwise = [
+  { MoveMouse = [ -10, 10, "Rel" ] }
+]
+on_press = [
+  { ChangeWheel = "Next" }
+]
+
 [buttons.next]
-on_click = [
+on_double_click_release = [
   { ChangeButtonSet = "Next" }
 ]
-on_double_click = [
+on_long_press = [
   { ChangeButtonSet = "Previous" }
 ]
-on_triple_click = [
+on_click = [
   { ChangeProfile = [ "Next", "First", "First" ] }
 ]
-on_long_press = [
-  "Swap"
-]
+# on_click = [
+#   "Swap"
+# ]
 
 
 [buttons.hola]
@@ -150,15 +178,25 @@ on_press = [
 ]
 [buttons.left_click]
 on_press = [
-  { Button = [ "Left", "Click" ] }
+  { Button = [ "Left", "Press" ] }
 ]
+on_release = [
+  { Button = [ "Left", "Release" ] }
+]
+
 [buttons.middle_click]
 on_press = [
-  { Button = [ "Middle", "Click" ] }
+  { Button = [ "Middle", "Press" ] }
+]
+on_release = [
+  { Button = [ "Middle", "Release" ] }
 ]
 [buttons.right_click]
 on_press = [
-  { Button = [ "Right", "Click" ] }
+  { Button = [ "Right", "Press" ] }
+]
+on_release = [
+  { Button = [ "Right", "Release" ] }
 ]
 
 
@@ -238,3 +276,5 @@ mouse="mouse"
 [profiles.mouse.wheels]
 mouse_horizontal="mouse_horizontal"
 mouse_vertical="mouse_vertical"
+mouse_diagonal_1="mouse_diagonal_1"
+mouse_diagonal_2="mouse_diagonal_2"

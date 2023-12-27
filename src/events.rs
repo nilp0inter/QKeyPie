@@ -34,7 +34,9 @@ pub enum ButtonEvent {
     OnPress,
     OnRelease,
     OnLongPress,
+    OnClickPress(u8),
     OnClick(u8),
+    OnClickRelease(u8),
 }
 
 impl ButtonStateMachine {
@@ -49,7 +51,7 @@ impl ButtonStateMachine {
             (ButtonStateMachine::Pressed(pressed_at), ButtonState::Released) => {
                 let duration = when.duration_since(pressed_at);
                 if duration.as_millis() < 500 {
-                    (ButtonStateMachine::WaitingForClick(when, 1), vec![ButtonEvent::OnRelease])
+                    (ButtonStateMachine::WaitingForClick(when, 1), vec![ButtonEvent::OnRelease, ButtonEvent::OnClickRelease(1)])
                 } else {
                     (ButtonStateMachine::LongPressed, vec![ButtonEvent::OnLongPress])
                 }
@@ -69,7 +71,7 @@ impl ButtonStateMachine {
                 (ButtonStateMachine::LongPressed, vec![])
             }
             (ButtonStateMachine::WaitingForClick(_, count), ButtonState::Pressed) => {
-                (ButtonStateMachine::NonFirstPressed(when, count), vec![ButtonEvent::OnPress])
+                (ButtonStateMachine::NonFirstPressed(when, count), vec![ButtonEvent::OnPress, ButtonEvent::OnClickPress(count + 1)])
             }
             (ButtonStateMachine::WaitingForClick(pressed_at, count), _) => {
                 let duration = when.duration_since(pressed_at);
@@ -80,7 +82,7 @@ impl ButtonStateMachine {
                 }
             }
             (ButtonStateMachine::NonFirstPressed(pressed_at, count), ButtonState::Released) => {
-                (ButtonStateMachine::WaitingForClick(pressed_at, count + 1), vec![ButtonEvent::OnRelease])
+                (ButtonStateMachine::WaitingForClick(pressed_at, count + 1), vec![ButtonEvent::OnRelease, ButtonEvent::OnClickRelease(count + 1)])
             }
             (ButtonStateMachine::NonFirstPressed(pressed_at, count), _) => {
                 (ButtonStateMachine::NonFirstPressed(pressed_at, count), vec![])

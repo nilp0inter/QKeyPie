@@ -67,12 +67,22 @@ pub enum Action {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct ButtonCallback<T> {
-    pub on_click: T,
-    pub on_double_click: T,
-    pub on_triple_click: T,
-    pub on_long_press: T,
     pub on_press: T,
     pub on_release: T,
+
+    pub on_click_press: T,
+    pub on_click: T,
+    pub on_click_release: T,
+
+    pub on_double_click_press: T,
+    pub on_double_click: T,
+    pub on_double_click_release: T,
+
+    pub on_triple_click_press: T,
+    pub on_triple_click: T,
+    pub on_triple_click_release: T,
+
+    pub on_long_press: T,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

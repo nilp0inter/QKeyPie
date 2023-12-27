@@ -100,6 +100,29 @@ fn process_button_event(enigo: &mut Enigo, dev: &QKDevice, event: &ButtonEvent, 
                 eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
             })
         },
+        ButtonEvent::OnClickPress(click_count) => {
+            match click_count {
+                1 => {
+                    callbacks.on_click_press.iter().try_fold(None, |acc, action| {
+                        eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
+                    })
+                },
+                2 => {
+                    callbacks.on_double_click_press.iter().try_fold(None, |acc, action| {
+                        eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
+                    })
+                },
+                3 => {
+                    callbacks.on_triple_click_press.iter().try_fold(None, |acc, action| {
+                        eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
+                    })
+                },
+                _ => {
+                    println!("Unknown click count {}", click_count);
+                    Ok(None)
+                }
+            }
+        },
         ButtonEvent::OnClick(click_count) => {
             match click_count {
                 1 => {
@@ -114,6 +137,29 @@ fn process_button_event(enigo: &mut Enigo, dev: &QKDevice, event: &ButtonEvent, 
                 },
                 3 => {
                     callbacks.on_triple_click.iter().try_fold(None, |acc, action| {
+                        eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
+                    })
+                },
+                _ => {
+                    println!("Unknown click count {}", click_count);
+                    Ok(None)
+                }
+            }
+        },
+        ButtonEvent::OnClickRelease(click_count) => {
+            match click_count {
+                1 => {
+                    callbacks.on_click_release.iter().try_fold(None, |acc, action| {
+                        eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
+                    })
+                },
+                2 => {
+                    callbacks.on_double_click_release.iter().try_fold(None, |acc, action| {
+                        eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
+                    })
+                },
+                3 => {
+                    callbacks.on_triple_click_release.iter().try_fold(None, |acc, action| {
                         eval(enigo, dev, action, Some(current_button.clone())).map(|opt_value| opt_value.or(acc))
                     })
                 },

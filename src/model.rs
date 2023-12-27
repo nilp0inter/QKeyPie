@@ -38,12 +38,18 @@ fn get_button_by_id(cfg: &Config, id: &ButtonId, macros: &IndexMap<MacroId, Acti
     let cfg_button = cfg.buttons.as_ref().and_then(|buttons| buttons.get(id)).ok_or_else(|| anyhow::anyhow!("Button {} not found", id))?;
 
     let button : ButtonCallback<Actions> = ButtonCallback {
-        on_click: replace_macros(&cfg_button.on_click, macros),
-        on_double_click: replace_macros(&cfg_button.on_double_click, macros),
-        on_triple_click: replace_macros(&cfg_button.on_triple_click, macros),
-        on_long_press: replace_macros(&cfg_button.on_long_press, macros),
         on_press: replace_macros(&cfg_button.on_press, macros),
         on_release: replace_macros(&cfg_button.on_release, macros),
+        on_click_press: replace_macros(&cfg_button.on_click_press, macros),
+        on_click: replace_macros(&cfg_button.on_click, macros),
+        on_click_release: replace_macros(&cfg_button.on_click_release, macros),
+        on_double_click_press: replace_macros(&cfg_button.on_double_click_press, macros),
+        on_double_click: replace_macros(&cfg_button.on_double_click, macros),
+        on_double_click_release: replace_macros(&cfg_button.on_double_click_release, macros),
+        on_triple_click_press: replace_macros(&cfg_button.on_triple_click_press, macros),
+        on_triple_click: replace_macros(&cfg_button.on_triple_click, macros),
+        on_triple_click_release: replace_macros(&cfg_button.on_triple_click_release, macros),
+        on_long_press: replace_macros(&cfg_button.on_long_press, macros),
     };
     Ok(button)
 }
@@ -67,12 +73,18 @@ fn get_wheel(cfg: &Config, id: &WheelId, macros: &IndexMap<MacroId, Actions>) ->
             on_counterclockwise_start: replace_macros(&cfg_wheel.wheel.on_counterclockwise_start, macros),
             on_counterclockwise_stop: replace_macros(&cfg_wheel.wheel.on_counterclockwise_stop, macros),
             button: ButtonCallback {
-                on_click: replace_macros(&cfg_wheel.wheel.button.on_click, macros),
-                on_double_click: replace_macros(&cfg_wheel.wheel.button.on_double_click, macros),
-                on_triple_click: replace_macros(&cfg_wheel.wheel.button.on_triple_click, macros),
-                on_long_press: replace_macros(&cfg_wheel.wheel.button.on_long_press, macros),
                 on_press: replace_macros(&cfg_wheel.wheel.button.on_press, macros),
                 on_release: replace_macros(&cfg_wheel.wheel.button.on_release, macros),
+                on_click_press: replace_macros(&cfg_wheel.wheel.button.on_click_press, macros),
+                on_click: replace_macros(&cfg_wheel.wheel.button.on_click, macros),
+                on_click_release: replace_macros(&cfg_wheel.wheel.button.on_click_release, macros),
+                on_double_click_press: replace_macros(&cfg_wheel.wheel.button.on_double_click_press, macros),
+                on_double_click: replace_macros(&cfg_wheel.wheel.button.on_double_click, macros),
+                on_double_click_release: replace_macros(&cfg_wheel.wheel.button.on_double_click_release, macros),
+                on_triple_click_press: replace_macros(&cfg_wheel.wheel.button.on_triple_click_press, macros),
+                on_triple_click: replace_macros(&cfg_wheel.wheel.button.on_triple_click, macros),
+                on_triple_click_release: replace_macros(&cfg_wheel.wheel.button.on_triple_click_release, macros),
+                on_long_press: replace_macros(&cfg_wheel.wheel.button.on_long_press, macros),
             },
         },
         active: ActiveCallback {
