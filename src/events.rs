@@ -43,7 +43,7 @@ impl ButtonStateMachine {
     pub fn transition(self, event: ButtonState, when: Instant) -> (Self, Vec<ButtonEvent>) {
         match (self, event) {
             (ButtonStateMachine::Idle, ButtonState::Pressed) => {
-                (ButtonStateMachine::Pressed(when), vec![ButtonEvent::OnPress])
+                (ButtonStateMachine::Pressed(when), vec![ButtonEvent::OnPress, ButtonEvent::OnClickPress(1)])
             },
             (ButtonStateMachine::Idle, _) => {
                 (ButtonStateMachine::Idle, vec![])
