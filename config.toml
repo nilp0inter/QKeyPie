@@ -154,29 +154,45 @@ on_press = [
 on_press = [ { Text = "Hi!" } ]
 
 [buttons.move_mouse_left]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "H" ] }
+]
 on_press = [
   { MoveMouse = [ -10, 0, "Rel" ] },
   { ChangeWheel = { Name = "mouse_horizontal" } }
 ]
 
 [buttons.move_mouse_right]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "J" ] },
+]
+
 on_press = [
   { MoveMouse = [ 10, 0, "Rel" ] },
   { ChangeWheel = { Name = "mouse_horizontal" } }
 ]
 
 [buttons.move_mouse_up]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "K" ] },
+]
 on_press = [
   { MoveMouse = [ 0, -10, "Rel" ] },
   { ChangeWheel = { Name = "mouse_vertical" } }
 ]
 
 [buttons.move_mouse_down]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "L" ] }
+]
 on_press = [
   { MoveMouse = [ 0, 10, "Rel" ] },
   { ChangeWheel = { Name = "mouse_vertical" } }
 ]
 [buttons.left_click]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "Left$Button" ] }
+]
 on_press = [
   { Button = [ "Left", "Press" ] }
 ]
@@ -185,13 +201,20 @@ on_release = [
 ]
 
 [buttons.middle_click]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "Middle$Button" ] },
+]
 on_press = [
   { Button = [ "Middle", "Press" ] }
 ]
 on_release = [
   { Button = [ "Middle", "Release" ] }
 ]
+
 [buttons.right_click]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "Right$Button" ] }
+]
 on_press = [
   { Button = [ "Right", "Press" ] }
 ]
@@ -249,16 +272,6 @@ button7="neovim_hardmode"
 button_extra="next"
 
 [buttonsets.mouse]
-on_enter = [
-  { SetButtonText = [ "Button0", "H" ] },
-  { SetButtonText = [ "Button1", "J" ] },
-  { SetButtonText = [ "Button2", "K" ] },
-  { SetButtonText = [ "Button3", "L" ] },
-  { SetButtonText = [ "Button4", "Left$Button" ] },
-  { SetButtonText = [ "Button5", "Middle$Button" ] },
-  { SetButtonText = [ "Button6", "Right$Button" ] },
-  { SetButtonText = [ "Button7", "" ] },
-]
 button0="move_mouse_left"
 button1="move_mouse_down"
 button2="move_mouse_up"
