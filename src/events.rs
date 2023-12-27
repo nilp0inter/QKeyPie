@@ -2,6 +2,7 @@ use std::time::Instant;
 
 // use crate::actions;
 
+#[derive(Debug, Copy, Clone)]
 pub enum ButtonState {
     Pressed,
     Released,
