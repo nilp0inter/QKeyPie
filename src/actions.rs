@@ -85,6 +85,9 @@ pub struct ButtonCallback<T> {
     pub on_triple_click_release: T,
 
     pub on_long_press: T,
+
+    #[serde(flatten)]
+    pub active: ActiveCallback<T>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

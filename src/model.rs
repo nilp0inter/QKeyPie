@@ -48,6 +48,10 @@ fn get_button_by_id(cfg: &Config, id: &ButtonId, macros: &IndexMap<MacroId, Acti
         on_triple_click: replace_macros(&cfg_button.on_triple_click, macros),
         on_triple_click_release: replace_macros(&cfg_button.on_triple_click_release, macros),
         on_long_press: replace_macros(&cfg_button.on_long_press, macros),
+        active: ActiveCallback {
+            on_enter: replace_macros(&cfg_button.active.on_enter, macros),
+            on_exit: replace_macros(&cfg_button.active.on_exit, macros),
+        },
     };
     Ok(button)
 }
@@ -83,6 +87,10 @@ fn get_wheel(cfg: &Config, id: &WheelId, macros: &IndexMap<MacroId, Actions>) ->
                 on_triple_click: replace_macros(&cfg_wheel.wheel.button.on_triple_click, macros),
                 on_triple_click_release: replace_macros(&cfg_wheel.wheel.button.on_triple_click_release, macros),
                 on_long_press: replace_macros(&cfg_wheel.wheel.button.on_long_press, macros),
+                active: ActiveCallback {
+                    on_enter: replace_macros(&cfg_wheel.wheel.button.active.on_enter, macros),
+                    on_exit: replace_macros(&cfg_wheel.wheel.button.active.on_exit, macros),
+                },
             },
         },
         active: ActiveCallback {

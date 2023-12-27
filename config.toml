@@ -201,6 +201,9 @@ on_release = [
 
 
 [buttons.tmux_split_vertical]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "Split$Vertical" ] }
+]
 on_press = [
   { Key = [ "Control", "Press" ] },
   { Key = [ { Unicode = "b" }, "Click" ] },
@@ -209,6 +212,9 @@ on_press = [
 ]
 
 [buttons.tmux_split_horizontal]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "Split$Horizontal" ] }
+]
 on_press = [
   { Key = [ "Control", "Press" ] },
   { Key = [ { Unicode = "b" }, "Click" ] },
@@ -220,14 +226,15 @@ on_press = [
 [buttonsets.tmux]
 on_enter = [
   { Macro = "clean_buttons" },
-  { SetButtonText = [ "Button0", "Split$Vertical" ] },
-  { SetButtonText = [ "Button1", "Split$Horizontal" ] },
 ]
-button0 = "tmux_split_vertical"
-button1 = "tmux_split_horizontal"
+button1 = "tmux_split_vertical"
+button2 = "tmux_split_horizontal"
 button_extra="next"
 
 [buttons.neovim_hardmode]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "HardMode" ] },
+]
 on_press = [
   { Key = [ "Escape", "Click" ] },
   { Text = ":HardTimeToggle" },
@@ -237,9 +244,8 @@ on_press = [
 [buttonsets.neovim]
 on_enter = [
   { Macro = "clean_buttons" },
-  { SetButtonText = [ "Button0", "HardMode" ] },
 ]
-button0="neovim_hardmode"
+button7="neovim_hardmode"
 button_extra="next"
 
 [buttonsets.mouse]
@@ -290,9 +296,9 @@ on_enter = [
 ]
 
 [profiles.shell.buttonsets]
-test="test"
 tmux="tmux"
 neovim="neovim"
+test="test"
 
 [profiles.shell.wheels]
 zoom="zoom"

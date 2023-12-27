@@ -249,8 +249,38 @@ pub fn run(model: Model) -> anyhow::Result<()> {
         for action in &current_buttonset.active.on_enter {
             eval(&mut enigo, &dev, action, None)?;
         }
+        for action in &current_buttonset.buttonset.button0.active.on_enter {
+            eval(&mut enigo, &dev, action, Some(WhichButton::Button0))?;
+        }
+        for action in &current_buttonset.buttonset.button1.active.on_enter {
+            eval(&mut enigo, &dev, action, Some(WhichButton::Button1))?;
+        }
+        for action in &current_buttonset.buttonset.button2.active.on_enter {
+            eval(&mut enigo, &dev, action, Some(WhichButton::Button2))?;
+        }
+        for action in &current_buttonset.buttonset.button3.active.on_enter {
+            eval(&mut enigo, &dev, action, Some(WhichButton::Button3))?;
+        }
+        for action in &current_buttonset.buttonset.button4.active.on_enter {
+            eval(&mut enigo, &dev, action, Some(WhichButton::Button4))?;
+        }
+        for action in &current_buttonset.buttonset.button5.active.on_enter {
+            eval(&mut enigo, &dev, action, Some(WhichButton::Button5))?;
+        }
+        for action in &current_buttonset.buttonset.button6.active.on_enter {
+            eval(&mut enigo, &dev, action, Some(WhichButton::Button6))?;
+        }
+        for action in &current_buttonset.buttonset.button7.active.on_enter {
+            eval(&mut enigo, &dev, action, Some(WhichButton::Button7))?;
+        }
+        for action in &current_buttonset.buttonset.button_extra.active.on_enter {
+            eval(&mut enigo, &dev, action, Some(WhichButton::ButtonExtra))?;
+        }
         for action in &current_wheel.active.on_enter {
             eval(&mut enigo, &dev, action, None)?;
+        }
+        for action in &current_wheel.wheel.button.active.on_enter {
+            eval(&mut enigo, &dev, action, Some(WhichButton::WheelButton))?;
         }
     }
 
@@ -320,19 +350,80 @@ pub fn run(model: Model) -> anyhow::Result<()> {
                 }
             }
             if new_state.current_profile_id != state.current_profile_id || new_state.current_buttonset_id != state.current_buttonset_id {
+                for action in &current_buttonset.buttonset.button0.active.on_exit {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button0))?;
+                }
+                for action in &current_buttonset.buttonset.button1.active.on_exit {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button1))?;
+                }
+                for action in &current_buttonset.buttonset.button2.active.on_exit {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button2))?;
+                }
+                for action in &current_buttonset.buttonset.button3.active.on_exit {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button3))?;
+                }
+                for action in &current_buttonset.buttonset.button4.active.on_exit {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button4))?;
+                }
+                for action in &current_buttonset.buttonset.button5.active.on_exit {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button5))?;
+                }
+                for action in &current_buttonset.buttonset.button6.active.on_exit {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button6))?;
+                }
+                for action in &current_buttonset.buttonset.button7.active.on_exit {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button7))?;
+                }
+                for action in &current_buttonset.buttonset.button_extra.active.on_exit {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::ButtonExtra))?;
+                }
                 for action in &current_buttonset.active.on_exit {
                     eval(&mut enigo, &dev, action, None)?;
                 }
+
                 for action in &new_state.get_current_buttonset().active.on_enter {
                     eval(&mut enigo, &dev, action, None)?;
                 }
+                for action in &new_state.get_current_buttonset().buttonset.button0.active.on_enter {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button0))?;
+                }
+                for action in &new_state.get_current_buttonset().buttonset.button1.active.on_enter {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button1))?;
+                }
+                for action in &new_state.get_current_buttonset().buttonset.button2.active.on_enter {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button2))?;
+                }
+                for action in &new_state.get_current_buttonset().buttonset.button3.active.on_enter {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button3))?;
+                }
+                for action in &new_state.get_current_buttonset().buttonset.button4.active.on_enter {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button4))?;
+                }
+                for action in &new_state.get_current_buttonset().buttonset.button5.active.on_enter {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button5))?;
+                }
+                for action in &new_state.get_current_buttonset().buttonset.button6.active.on_enter {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button6))?;
+                }
+                for action in &new_state.get_current_buttonset().buttonset.button7.active.on_enter {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::Button7))?;
+                }
+                for action in &new_state.get_current_buttonset().buttonset.button_extra.active.on_enter {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::ButtonExtra))?;
+                }
             }
             if new_state.current_profile_id != state.current_profile_id || new_state.current_wheel_id != state.current_wheel_id {
+                for action in &current_wheel.wheel.button.active.on_exit {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::WheelButton))?;
+                }
                 for action in &current_wheel.active.on_exit {
                     eval(&mut enigo, &dev, action, None)?;
                 }
                 for action in &new_state.get_current_wheel().active.on_enter {
                     eval(&mut enigo, &dev, action, None)?;
+                }
+                for action in &new_state.get_current_wheel().wheel.button.active.on_enter {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::WheelButton))?;
                 }
             }
             state = new_state;
