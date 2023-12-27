@@ -9,6 +9,12 @@ clean_buttons = [
   { SetButtonText = [ "Button6", "" ] },
   { SetButtonText = [ "Button7", "" ] },
 ]
+tmux_cmd = [
+  { Key = [ "Control", "Press" ] },
+  { Key = [ { Unicode = "b" }, "Click" ] },
+  { Key = [ "Control", "Release" ] },
+]
+
 
 [wheels]
 
@@ -153,45 +159,43 @@ on_press = [
 [buttons.say_hi]
 on_press = [ { Text = "Hi!" } ]
 
-[buttons.move_mouse_left]
+[buttons.mouse_horizontal]
 on_enter = [
-  { SetButtonText = [ "ThisButton", "H" ] }
+  { SetButtonText = [ "ThisButton", "-" ] }
 ]
 on_press = [
-  { MoveMouse = [ -10, 0, "Rel" ] },
   { ChangeWheel = { Name = "mouse_horizontal" } }
 ]
 
-[buttons.move_mouse_right]
+[buttons.mouse_diagonal_2]
 on_enter = [
-  { SetButtonText = [ "ThisButton", "J" ] },
+  { SetButtonText = [ "ThisButton", "/" ] },
 ]
 
 on_press = [
-  { MoveMouse = [ 10, 0, "Rel" ] },
-  { ChangeWheel = { Name = "mouse_horizontal" } }
+  { ChangeWheel = { Name = "mouse_diagonal_2" } }
 ]
 
-[buttons.move_mouse_up]
+[buttons.mouse_diagonal_1]
 on_enter = [
-  { SetButtonText = [ "ThisButton", "K" ] },
+  { SetButtonText = [ "ThisButton", "\\" ] },
 ]
 on_press = [
   { MoveMouse = [ 0, -10, "Rel" ] },
+  { ChangeWheel = { Name = "mouse_diagonal_1" } }
+]
+
+[buttons.mouse_vertical]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "|" ] }
+]
+on_press = [
   { ChangeWheel = { Name = "mouse_vertical" } }
 ]
 
-[buttons.move_mouse_down]
-on_enter = [
-  { SetButtonText = [ "ThisButton", "L" ] }
-]
-on_press = [
-  { MoveMouse = [ 0, 10, "Rel" ] },
-  { ChangeWheel = { Name = "mouse_vertical" } }
-]
 [buttons.left_click]
 on_enter = [
-  { SetButtonText = [ "ThisButton", "Left$Button" ] }
+  { SetButtonText = [ "ThisButton", "Left" ] }
 ]
 on_press = [
   { Button = [ "Left", "Press" ] }
@@ -202,7 +206,7 @@ on_release = [
 
 [buttons.middle_click]
 on_enter = [
-  { SetButtonText = [ "ThisButton", "Middle$Button" ] },
+  { SetButtonText = [ "ThisButton", "Middle" ] },
 ]
 on_press = [
   { Button = [ "Middle", "Press" ] }
@@ -213,7 +217,7 @@ on_release = [
 
 [buttons.right_click]
 on_enter = [
-  { SetButtonText = [ "ThisButton", "Right$Button" ] }
+  { SetButtonText = [ "ThisButton", "Right" ] }
 ]
 on_press = [
   { Button = [ "Right", "Press" ] }
@@ -225,25 +229,31 @@ on_release = [
 
 [buttons.tmux_split_vertical]
 on_enter = [
-  { SetButtonText = [ "ThisButton", "Split$Vertical" ] }
+  { SetButtonText = [ "ThisButton", "Split$||" ] }
 ]
 on_press = [
-  { Key = [ "Control", "Press" ] },
-  { Key = [ { Unicode = "b" }, "Click" ] },
-  { Key = [ "Control", "Release" ] },
+  { Macro = "tmux_cmd" },
   { Key = [ { Unicode = "%" }, "Click" ] },
 ]
 
 [buttons.tmux_split_horizontal]
 on_enter = [
-  { SetButtonText = [ "ThisButton", "Split$Horizontal" ] }
+  { SetButtonText = [ "ThisButton", "Split$--" ] }
 ]
 on_press = [
-  { Key = [ "Control", "Press" ] },
-  { Key = [ { Unicode = "b" }, "Click" ] },
-  { Key = [ "Control", "Release" ] },
+  { Macro = "tmux_cmd" },
   { Key = [ { Unicode = "\"" }, "Click" ] },
 ]
+
+[buttons.tmux_windows]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "Windows" ] }
+]
+on_press = [
+  { Macro = "tmux_cmd" },
+  { Key = [ { Unicode = "w" }, "Click" ] },
+]
+
 
 
 [buttonsets.tmux]
@@ -252,6 +262,7 @@ on_enter = [
 ]
 button1 = "tmux_split_vertical"
 button2 = "tmux_split_horizontal"
+button4 = "tmux_windows"
 button_extra="next"
 
 [buttons.neovim_hardmode]
@@ -272,16 +283,19 @@ button7="neovim_hardmode"
 button_extra="next"
 
 [buttonsets.mouse]
-button0="move_mouse_left"
-button1="move_mouse_down"
-button2="move_mouse_up"
-button3="move_mouse_right"
+button0="mouse_horizontal"
+button1="mouse_vertical"
+button2="mouse_diagonal_1"
+button3="mouse_diagonal_2"
 button4="left_click"
 button5="middle_click"
 button6="right_click"
 button_extra="next"
 
 [buttons.test_button]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "* Test *" ] }
+]
 on_press = [ { Debug = "on_press" } ]
 on_release = [ { Debug = "on_release" } ]
 on_click_press = [ { Debug = "on_click_press" } ]
@@ -298,9 +312,15 @@ on_long_press = [ { Debug = "on_long_press" } ]
 [buttonsets.test]
 on_enter = [
   { Macro = "clean_buttons" },
-  { SetButtonText = [ "Button0", "* Test *" ] },
 ]
 button0="test_button"
+button1="test_button"
+button2="test_button"
+button3="test_button"
+button4="test_button"
+button5="test_button"
+button6="test_button"
+button7="test_button"
 button_extra="next"
 
 [profiles.shell]
@@ -309,9 +329,9 @@ on_enter = [
 ]
 
 [profiles.shell.buttonsets]
+test="test"
 tmux="tmux"
 neovim="neovim"
-test="test"
 
 [profiles.shell.wheels]
 zoom="zoom"
