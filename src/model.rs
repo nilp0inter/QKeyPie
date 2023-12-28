@@ -12,6 +12,7 @@ pub type ProfileModel = ProfileCallback<IndexMap<ButtonSetId, ButtonSetModel>, I
 
 #[derive(Debug, Clone)]
 pub struct Model {
+    pub server: ActiveCallback<Actions>,
     pub profiles: IndexMap<ProfileId, ProfileModel>,
 }
 
@@ -129,14 +130,15 @@ fn get_buttonset(cfg: &Config, id: &ButtonSetId, macros: &IndexMap<MacroId, Acti
 pub fn from_config(cfg: Config) -> anyhow::Result<Model> {
     let mut profiles = IndexMap::new();
 
+    let mut macros = IndexMap::new();
+
+    for (cfg_macro_name, cfg_macro_actions) in cfg.macros.clone().unwrap_or_default() {
+        macros.insert(cfg_macro_name, cfg_macro_actions.unwrap_or_default());
+    }
+
     for (cfg_profile_name, cfg_profile) in cfg.clone().profiles.unwrap_or_default() {
         let mut buttonsets = IndexMap::new();
         let mut wheels = IndexMap::new();
-        let mut macros = IndexMap::new();
-
-        for (cfg_macro_name, cfg_macro_actions) in cfg.macros.clone().unwrap_or_default() {
-            macros.insert(cfg_macro_name, cfg_macro_actions.unwrap_or_default());
-        }
 
         for (cfg_buttonset_name, cfg_buttonset_id) in cfg_profile.buttonsets.unwrap_or_default() {
             let buttonset = get_buttonset(&cfg.clone(), &cfg_buttonset_id, &macros)?;
@@ -159,6 +161,10 @@ pub fn from_config(cfg: Config) -> anyhow::Result<Model> {
     }
 
     Ok(Model {
+        server: ActiveCallback {
+            on_enter: replace_macros(&cfg.server.clone().unwrap_or_default().on_enter, &macros),
+            on_exit: replace_macros(&cfg.server.unwrap_or_default().on_exit, &macros),
+        },
         profiles,
     })
 }

@@ -1,4 +1,4 @@
-use xencelabs_quick_keys::{QKDevice, ConnectionMode, ScreenOrientation };
+use xencelabs_quick_keys::{QKDevice, ConnectionMode };
 
 use hidapi::HidApi;
 use std::{time, thread};
@@ -259,11 +259,11 @@ pub fn run(model: Model) -> anyhow::Result<()> {
     let api = HidApi::new()?;
     let dev = QKDevice::open(api, ConnectionMode::Auto)?;
 
-    dev.set_screen_orientation(ScreenOrientation::Rotate180)?; 
-    dev.set_wheel_speed(xencelabs_quick_keys::WheelSpeed::Slower)?;
-
     // Enter the initial state
     {
+        for action in &state.model.server.on_enter {
+            eval(&mut enigo, &dev, action, None)?;
+        }
         let current_profile = state.get_current_profile();
         let current_buttonset = state.get_current_buttonset();
         let current_wheel = state.get_current_wheel();

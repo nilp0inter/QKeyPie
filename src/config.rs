@@ -5,7 +5,7 @@ use indexmap::IndexMap;
 use serde::Serialize;
 use serde::Deserialize;
 
-use crate::actions::{Action, ButtonCallback, WheelSetCallback, ButtonSetCallback, ProfileCallback, ButtonId, WheelId, ButtonSetId, ProfileId, MacroId};
+use crate::actions::{Action, ButtonCallback, WheelSetCallback, ButtonSetCallback, ProfileCallback, ButtonId, WheelId, ButtonSetId, ProfileId, MacroId, ActiveCallback};
 
 type Actions = Option<Vec<Action>>;
 
@@ -16,6 +16,7 @@ type ProfileConfig = ProfileCallback<Option<IndexMap<String, ButtonSetId>>, Opti
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
+    pub server: Option<ActiveCallback<Actions>>,
     pub macros: Option<IndexMap<MacroId, Actions>>,
     pub buttons: Option<IndexMap<ButtonId, ButtonCallback<Actions>>>,
     pub wheels: Option<IndexMap<WheelId, WheelSetCallback<Actions>>>,

@@ -121,7 +121,7 @@ pub struct WheelSetCallback<T> {
     pub active: ActiveCallback<T>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, Default)]
 pub struct ActiveCallback<T> {
     pub on_enter: T,
     pub on_exit: T,

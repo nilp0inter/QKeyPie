@@ -1,3 +1,24 @@
+[server]
+on_enter = [
+  { Macro = "clean_buttons" },
+  { SetScreenOrientation = "Rotate180" },
+  { SetWheelSpeed = "Normal" },
+  { SetScreenBrightness = "Medium" },
+  { SetSleepTimeout = 60 },
+  { Sleep = 500 },
+  { ShowBanner = [ 2, ">>> QKeyPie <<<" ] },
+  { SetWheelColor = [ 0, 0, 0 ] },
+  { Sleep = 500 },
+  { SetWheelColor = [ 255, 0, 0 ] },
+  { Sleep = 500 },
+  { SetWheelColor = [ 0, 255, 0 ] },
+  { Sleep = 500 },
+  { SetWheelColor = [ 0, 0, 255 ] },
+  { Sleep = 500 },
+  { SetWheelColor = [ 0, 0, 0 ] },
+  { Sleep = 500 },
+]
+
 [macros]
 clean_buttons = [
   { SetButtonText = [ "Button0", "" ] },
@@ -256,6 +277,14 @@ on_press = [
   { Key = [ { Unicode = "w" }, "Click" ] },
 ]
 
+[buttons.tmux_paste]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "Paste" ] }
+]
+on_press = [
+  { Macro = "tmux_cmd" },
+  { Key = [ { Unicode = "]" }, "Click" ] },
+]
 
 
 [buttonsets.tmux]
@@ -265,6 +294,7 @@ on_enter = [
 button1 = "tmux_split_vertical"
 button2 = "tmux_split_horizontal"
 button4 = "tmux_windows"
+button7 = "tmux_paste"
 button_extra="next"
 
 [buttons.neovim_hardmode]
