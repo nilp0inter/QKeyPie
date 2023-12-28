@@ -46,16 +46,27 @@ pub enum GoTo {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum NonEnigoAction {
+    // QKeyPie side-effects
     Debug(String),
     Run(Vec<String>),
     Sleep(u64),
+
+    // QuickKeys state
+    SetScreenOrientation(xencelabs_quick_keys::ScreenOrientation),
+    SetScreenBrightness(xencelabs_quick_keys::ScreenBrightness),
+    SetWheelSpeed(xencelabs_quick_keys::WheelSpeed),
+    SetSleepTimeout(u8),
     SetButtonText(WhichButton, String),
     SetWheelColor(u8, u8, u8),
     ShowBanner(u8, String),
+
+    // QKeyPie state
     ChangeProfile(ChangeRef, ChangeRef, ChangeRef),
     ChangeWheel(ChangeRef),
     ChangeButtonSet(ChangeRef),
     Swap,
+
+    // QKeyPie config
     Macro(MacroId),
 }
 

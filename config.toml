@@ -20,7 +20,8 @@ tmux_cmd = [
 
 [wheels.zoom]
 on_enter = [
-  { SetWheelColor = [ 255, 0, 0 ] }
+  { SetWheelColor = [ 255, 0, 0 ] },
+  { SetWheelSpeed = "Slowest" }
 ]
 on_clockwise_start = [
   { ShowBanner = [ 2, "-- Zoom In --" ] },
@@ -57,19 +58,20 @@ on_long_press = [
 
 [wheels.volume]
 on_enter = [
-  { SetWheelColor = [ 255, 255, 0 ] }
+  { SetWheelColor = [ 255, 255, 0 ] },
+  { SetWheelSpeed = "Slower" }
 ]
 on_clockwise = [
-  { Key = [ "VolumeUp", "Click" ] }
+  { Run = [ "pulsemixer", "--max-volume", "100", "--change-volume", "+5" ] }
 ]
 on_counterclockwise = [
-  { Key = [ "VolumeDown", "Click" ] }
+  { Run = [ "pulsemixer", "--max-volume", "100", "--change-volume", "-5" ] }
 ]
 on_click = [
   { ChangeWheel = "Next" }
 ]
 on_long_press = [
-  { Key = [ "VolumeMute", "Click" ] }
+  { Run = [ "pulsemixer", "--max-volume", "100", "--toggle-mute" ] }
 ]
 on_double_click_press = [
   { ChangeWheel = "Previous" }
@@ -77,7 +79,8 @@ on_double_click_press = [
 
 [wheels.mouse_horizontal]
 on_enter = [
-  { SetWheelColor = [ 255, 192, 203 ] }
+  { SetWheelColor = [ 255, 192, 203 ] },
+  { SetWheelSpeed = "Fastest" }
 ]
 on_clockwise = [
   { MoveMouse = [ 10, 0, "Rel" ] }
@@ -91,7 +94,8 @@ on_press = [
 
 [wheels.mouse_vertical]
 on_enter = [
-  { SetWheelColor = [ 255, 192, 203 ] }
+  { SetWheelColor = [ 255, 192, 203 ] },
+  { SetWheelSpeed = "Fastest" }
 ]
 on_clockwise = [
   { MoveMouse = [ 0, 10, "Rel" ] }
@@ -105,7 +109,8 @@ on_press = [
 
 [wheels.mouse_diagonal_1]
 on_enter = [
-  { SetWheelColor = [ 255, 192, 203 ] }
+  { SetWheelColor = [ 255, 192, 203 ] },
+  { SetWheelSpeed = "Fastest" }
 ]
 on_clockwise = [
   { MoveMouse = [ 10, 10, "Rel" ] }
@@ -119,7 +124,8 @@ on_press = [
 
 [wheels.mouse_diagonal_2]
 on_enter = [
-  { SetWheelColor = [ 255, 192, 203 ] }
+  { SetWheelColor = [ 255, 192, 203 ] },
+  { SetWheelSpeed = "Fastest" }
 ]
 on_clockwise = [
   { MoveMouse = [ 10, -10, "Rel" ] }
@@ -132,23 +138,19 @@ on_press = [
 ]
 
 [buttons.next]
-on_double_click_release = [
+on_click_release = [
   { ChangeButtonSet = "Next" }
 ]
 on_long_press = [
-  { ChangeButtonSet = "Previous" }
-]
-on_click = [
   { ChangeProfile = [ "Next", "First", "First" ] }
 ]
-# on_click = [
-#   "Swap"
-# ]
 
-
-[buttons.hola]
-on_double_click = [
-  { Text = "Hi!" }
+[buttons.center_mouse]
+on_enter = [
+  { SetButtonText = [ "ThisButton", "><" ] }
+]
+on_press = [
+  { MoveMouse = [ 1440, 900, "Abs" ] }
 ]
 
 [buttons.adios]
@@ -290,6 +292,7 @@ button3="mouse_diagonal_2"
 button4="left_click"
 button5="middle_click"
 button6="right_click"
+button7="center_mouse"
 button_extra="next"
 
 [buttons.test_button]

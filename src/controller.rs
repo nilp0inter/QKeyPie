@@ -94,6 +94,30 @@ fn eval(enigo: &mut Enigo, dev: &QKDevice, action: &Action, current_button: Opti
                 Err(e) => anyhow::bail!("error: {:?}", e),
             }
         },
+        Action::NonEnigo(NonEnigoAction::SetScreenOrientation(orientation)) => {
+            match dev.set_screen_orientation(*orientation) {
+                Ok(_) => Ok(None),
+                Err(e) => anyhow::bail!("error: {:?}", e),
+            }
+        },
+        Action::NonEnigo(NonEnigoAction::SetScreenBrightness(brightness)) => {
+            match dev.set_screen_brightness(*brightness) {
+                Ok(_) => Ok(None),
+                Err(e) => anyhow::bail!("error: {:?}", e),
+            }
+        },
+        Action::NonEnigo(NonEnigoAction::SetWheelSpeed(speed)) => {
+            match dev.set_wheel_speed(*speed) {
+                Ok(_) => Ok(None),
+                Err(e) => anyhow::bail!("error: {:?}", e),
+            }
+        },
+        Action::NonEnigo(NonEnigoAction::SetSleepTimeout(minutes)) => {
+            match dev.set_sleep_timeout(*minutes) {
+                Ok(_) => Ok(None),
+                Err(e) => anyhow::bail!("error: {:?}", e),
+            }
+        },
     }
 }
 
