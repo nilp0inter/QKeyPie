@@ -342,6 +342,29 @@ on_triple_click = [ { Debug = "on_triple_click" } ]
 on_triple_click_release = [ { Debug = "on_triple_click_release" } ]
 on_long_press = [ { Debug = "on_long_press" } ]
 
+[wheels.test_wheel]
+on_enter = [
+  { SetWheelColor = [ 255, 255, 255 ] }
+]
+on_press = [ { Debug = "on_press" } ]
+on_release = [ { Debug = "on_release" } ]
+on_click_press = [ { Debug = "on_click_press" } ]
+on_click = [ { Debug = "on_click" } ]
+on_click_release = [ { Debug = "on_click_release" } ]
+on_double_click_press = [ { Debug = "on_double_click_press" } ]
+on_double_click = [ { Debug = "on_double_click" } ]
+on_double_click_release = [ { Debug = "on_double_click_release" } ]
+on_triple_click_press = [ { Debug = "on_triple_click_press" } ]
+on_triple_click = [ { Debug = "on_triple_click" } ]
+on_triple_click_release = [ { Debug = "on_triple_click_release" } ]
+on_long_press = [ { Debug = "on_long_press" } ]
+on_clockwise_start = [ { Debug = "on_clockwise_start" } ]
+on_clockwise = [ { Debug = "on_clockwise" } ]
+on_clockwise_stop = [ { Debug = "on_clockwise_stop" } ]
+on_counterclockwise_start = [ { Debug = "on_counterclockwise_start" } ]
+on_counterclockwise = [ { Debug = "on_counterclockwise" } ]
+on_counterclockwise_stop = [ { Debug = "on_counterclockwise_stop" } ]
+
 [buttonsets.test]
 on_enter = [
   { Macro = "clean_buttons" },
@@ -362,7 +385,6 @@ on_enter = [
 ]
 
 [profiles.shell.buttonsets]
-test="test"
 tmux="tmux"
 neovim="neovim"
 
@@ -383,3 +405,14 @@ mouse_horizontal="mouse_horizontal"
 mouse_vertical="mouse_vertical"
 mouse_diagonal_1="mouse_diagonal_1"
 mouse_diagonal_2="mouse_diagonal_2"
+
+[profiles.test]
+on_enter = [ 
+  { ShowBanner = [ 2, "-- TEST --" ] },
+]
+
+[profiles.test.buttonsets]
+test="test"
+
+[profiles.test.wheels]
+test_wheel="test_wheel"
