@@ -20,7 +20,12 @@ in
       '';
     };
   };
-  config = lib.mkIf cfg.enable {
+  config = let
+    configSource = if lib.isPath cfg.settings then
+      cfg.settings
+    else
+      settingsFormat.generate "config.toml" cfg.settings;
+  in lib.mkIf cfg.enable {
     systemd.user.services."qkeypie" = {
       Unit = {
         Description = "QKeyPie Daemon for the Xencelabs Quick Keys";
@@ -32,11 +37,8 @@ in
         RestartSec = 5;
       };
       Install.WantedBy = [ "default.target" ];
+      X-Restart-Triggers = [ configSource ];
     };
-    xdg.configFile."qkeypie/config.toml".source =
-      if lib.isPath cfg.settings then
-        cfg.settings
-      else
-        settingsFormat.generate "rio.toml" cfg.settings;
+    xdg.configFile."qkeypie/config.toml".source = configSource;
   };
 }
