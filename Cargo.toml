@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.75"
 axum = "0.7.2"
+clap = { version = "4.4.12", features = ["string"] }
 enigo = { version = "0.2.0-rc2", features = ["serde"] }
 hidapi = "2.4.1"
 http-body-util = "0.1.0"
@@ -20,4 +21,5 @@ toml = "0.8.8"
 tower = { version = "0.4.13", features = ["util"] }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+xdg = "2.5.2"
 xencelabs-quick-keys = { version = "0.3.2", features = ["serde"] }

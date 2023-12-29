@@ -14,6 +14,9 @@
     flake-parts,
   }:
     flake-parts.lib.mkFlake {inherit inputs;} {
+      flake = {
+        homeManagerModules.default = ./home-module.nix;
+      };
       imports = [
         inputs.flake-parts.flakeModules.easyOverlay
       ];
@@ -69,6 +72,7 @@
             license = licenses.gpl3;
             platforms = platforms.linux;
             maintainers = with maintainers; [nilp0inter];
+            mainProgram = "qkeypie";
           };
         };
 
