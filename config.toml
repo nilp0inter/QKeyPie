@@ -174,14 +174,6 @@ on_press = [
   { MoveMouse = [ 1440, 900, "Abs" ] }
 ]
 
-[buttons.adios]
-on_press = [
-  { Text = "Bye!" }
-]
-
-[buttons.say_hi]
-on_press = [ { Text = "Hi!" } ]
-
 [buttons.mouse_horizontal]
 on_enter = [
   { SetButtonText = [ "ThisButton", "-" ] }
@@ -295,7 +287,7 @@ button1 = "tmux_split_vertical"
 button2 = "tmux_split_horizontal"
 button4 = "tmux_windows"
 button7 = "tmux_paste"
-button_extra="next"
+# button_extra="next"
 
 [buttons.neovim_hardmode]
 on_enter = [
@@ -312,7 +304,7 @@ on_enter = [
   { Macro = "clean_buttons" },
 ]
 button7="neovim_hardmode"
-button_extra="next"
+# button_extra="next"
 
 [buttonsets.mouse]
 button0="mouse_horizontal"
@@ -323,7 +315,7 @@ button4="left_click"
 button5="middle_click"
 button6="right_click"
 button7="center_mouse"
-button_extra="next"
+# button_extra="next"
 
 [buttons.test_button]
 on_enter = [
@@ -377,12 +369,13 @@ button4="test_button"
 button5="test_button"
 button6="test_button"
 button7="test_button"
-button_extra="next"
+# button_extra="next"
 
 [profiles.shell]
 on_enter = [ 
   { ShowBanner = [ 2, "-- SHELL --" ] },
 ]
+button="next"
 
 [profiles.shell.buttonsets]
 tmux="tmux"
@@ -396,6 +389,7 @@ volume="volume"
 on_enter = [ 
   { ShowBanner = [ 2, "-- MOUSE --" ] },
 ]
+button="next"
 
 [profiles.mouse.buttonsets]
 mouse="mouse"
@@ -408,7 +402,7 @@ mouse_diagonal_2="mouse_diagonal_2"
 
 [profiles.test]
 on_enter = [ 
-  { ShowBanner = [ 2, "-- TEST --" ] },
+  # { ShowBanner = [ 2, "-- TEST --" ] },
 ]
 
 [profiles.test.buttonsets]

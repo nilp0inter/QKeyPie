@@ -297,9 +297,6 @@ pub fn run(model: Model) -> anyhow::Result<()> {
         for action in &current_buttonset.buttonset.button7.active.on_enter {
             eval(&mut enigo, &dev, action, Some(WhichButton::Button7))?;
         }
-        for action in &current_buttonset.buttonset.button_extra.active.on_enter {
-            eval(&mut enigo, &dev, action, Some(WhichButton::ButtonExtra))?;
-        }
         for action in &current_wheel.active.on_enter {
             eval(&mut enigo, &dev, action, None)?;
         }
@@ -350,9 +347,6 @@ pub fn run(model: Model) -> anyhow::Result<()> {
         if let Some(goto) = process_buttonset_events(&mut enigo, &dev, buttonset_events.button7, &current_buttonset.buttonset.button7, WhichButton::Button7)? {
             final_goto = Some(goto);
         }
-        if let Some(goto) = process_buttonset_events(&mut enigo, &dev, buttonset_events.button_extra, &current_buttonset.buttonset.button_extra, WhichButton::ButtonExtra)? {
-            final_goto = Some(goto);
-        }
         if let Some(goto) = process_buttonset_events(&mut enigo, &dev, wheel_events.wheel_button, &current_wheel.wheel.button, WhichButton::WheelButton)? {
             final_goto = Some(goto);
         }
@@ -398,9 +392,6 @@ pub fn run(model: Model) -> anyhow::Result<()> {
                 for action in &current_buttonset.buttonset.button7.active.on_exit {
                     eval(&mut enigo, &dev, action, Some(WhichButton::Button7))?;
                 }
-                for action in &current_buttonset.buttonset.button_extra.active.on_exit {
-                    eval(&mut enigo, &dev, action, Some(WhichButton::ButtonExtra))?;
-                }
                 for action in &current_buttonset.active.on_exit {
                     eval(&mut enigo, &dev, action, None)?;
                 }
@@ -431,9 +422,6 @@ pub fn run(model: Model) -> anyhow::Result<()> {
                 }
                 for action in &new_state.get_current_buttonset().buttonset.button7.active.on_enter {
                     eval(&mut enigo, &dev, action, Some(WhichButton::Button7))?;
-                }
-                for action in &new_state.get_current_buttonset().buttonset.button_extra.active.on_enter {
-                    eval(&mut enigo, &dev, action, Some(WhichButton::ButtonExtra))?;
                 }
             }
             if new_state.current_profile_id != state.current_profile_id || new_state.current_wheel_id != state.current_wheel_id {

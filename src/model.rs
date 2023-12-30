@@ -8,7 +8,7 @@ type Actions = Vec<Action>;
 
 type ButtonSetModel = ButtonSetCallback<ButtonCallback<Actions>,Actions>;
 type WheelSetModel = WheelSetCallback<Actions>;
-pub type ProfileModel = ProfileCallback<IndexMap<ButtonSetId, ButtonSetModel>, IndexMap<WheelId, WheelSetModel>, Actions>;
+pub type ProfileModel = ProfileCallback<IndexMap<ButtonSetId, ButtonSetModel>, IndexMap<WheelId, WheelSetModel>, ButtonCallback<Actions>, Actions>;
 
 #[derive(Debug, Clone)]
 pub struct Model {
@@ -116,7 +116,6 @@ fn get_buttonset(cfg: &Config, id: &ButtonSetId, macros: &IndexMap<MacroId, Acti
             button5: get_button(cfg, &cfg_buttonset.buttonset.button5, macros)?,
             button6: get_button(cfg, &cfg_buttonset.buttonset.button6, macros)?,
             button7: get_button(cfg, &cfg_buttonset.buttonset.button7, macros)?,
-            button_extra: get_button(cfg, &cfg_buttonset.buttonset.button_extra, macros)?,
         },
         active: ActiveCallback {
             on_enter: replace_macros(&cfg_buttonset.active.on_enter, macros),
@@ -157,6 +156,7 @@ pub fn from_config(cfg: Config) -> anyhow::Result<Model> {
                 on_enter: replace_macros(&cfg_profile.active.on_enter, &macros),
                 on_exit: replace_macros(&cfg_profile.active.on_exit, &macros),
             },
+            button: get_button(&cfg, &cfg_profile.button, &macros)?,
         });
     }
 

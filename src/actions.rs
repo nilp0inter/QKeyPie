@@ -137,7 +137,6 @@ pub struct ButtonSet<T> {
     pub button5: T,
     pub button6: T,
     pub button7: T,
-    pub button_extra: T,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -166,7 +165,6 @@ impl From<xencelabs_quick_keys::ButtonState> for ButtonSet<events::ButtonState> 
             button5: b.button_5.into(),
             button6: b.button_6.into(),
             button7: b.button_7.into(),
-            button_extra: b.button_extra.into(),
         }
     }
 }
@@ -184,7 +182,6 @@ impl From<xencelabs_quick_keys::Event> for ButtonSet<events::ButtonState> {
                 button5: events::ButtonState::Unknown,
                 button6: events::ButtonState::Unknown,
                 button7: events::ButtonState::Unknown,
-                button_extra: events::ButtonState::Unknown,
             },
         }
     }
@@ -222,7 +219,6 @@ impl ButtonSet<events::ButtonStateMachine> {
         let (button5_new_state, button5_events) = self.button5.transition(event.button5, when);
         let (button6_new_state, button6_events) = self.button6.transition(event.button6, when);
         let (button7_new_state, button7_events) = self.button7.transition(event.button7, when);
-        let (button_extra_new_state, button_extra_events) = self.button_extra.transition(event.button_extra, when);
         (ButtonSet {
             button0: button0_new_state,
             button1: button1_new_state,
@@ -232,7 +228,6 @@ impl ButtonSet<events::ButtonStateMachine> {
             button5: button5_new_state,
             button6: button6_new_state,
             button7: button7_new_state,
-            button_extra: button_extra_new_state,
         }, ButtonSet {
             button0: button0_events,
             button1: button1_events,
@@ -242,7 +237,6 @@ impl ButtonSet<events::ButtonStateMachine> {
             button5: button5_events,
             button6: button6_events,
             button7: button7_events,
-            button_extra: button_extra_events,
         })
     }
 }
@@ -263,9 +257,10 @@ impl WheelSet<events::WheelStateMachine, events::ButtonStateMachine> {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct ProfileCallback<T1, T2, T3> {
+pub struct ProfileCallback<T1, T2, T3, T4> {
     pub buttonsets: T1,
     pub wheels: T2,
+    pub button: T3,
     #[serde(flatten)]
-    pub active: ActiveCallback<T3>,
+    pub active: ActiveCallback<T4>,
 }

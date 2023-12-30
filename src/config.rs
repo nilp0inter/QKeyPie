@@ -11,7 +11,7 @@ type Actions = Option<Vec<Action>>;
 
 
 type ButtonSetConfig = ButtonSetCallback<Option<ButtonSetId>,Actions>;
-type ProfileConfig = ProfileCallback<Option<IndexMap<String, ButtonSetId>>, Option<IndexMap<String, WheelId>>, Actions>;
+type ProfileConfig = ProfileCallback<Option<IndexMap<String, ButtonSetId>>, Option<IndexMap<String, WheelId>>, Option<ButtonId>, Actions>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
