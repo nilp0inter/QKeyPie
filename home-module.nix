@@ -30,6 +30,7 @@ in
       Unit = {
         Description = "QKeyPie Daemon for the Xencelabs Quick Keys";
         Documentation = "https://github.com/nilp0inter/QKeyPie";
+        X-Restart-Triggers = [ "${config.xdg.configFile."qkeypie/config.toml".source}" ];
       };
       Service = {
         ExecStart = "${lib.getExe cfg.package}";
@@ -37,7 +38,6 @@ in
         RestartSec = 5;
       };
       Install.WantedBy = [ "default.target" ];
-      X-Restart-Triggers = [ configSource ];
     };
     xdg.configFile."qkeypie/config.toml".source = configSource;
   };
