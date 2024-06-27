@@ -154,6 +154,12 @@ pub struct WheelSet<T1, T2> {
     pub wheel_button: T2,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[serde(deny_unknown_fields)]
+pub struct ProfileButton<T> {
+    pub button: T,
+}
+
 impl From<xencelabs_quick_keys::ButtonState> for ButtonSet<events::ButtonState> {
     fn from(b: xencelabs_quick_keys::ButtonState) -> Self {
         ButtonSet {
@@ -263,4 +269,28 @@ pub struct ProfileCallback<T1, T2, T3, T4> {
     pub button: T3,
     #[serde(flatten)]
     pub active: ActiveCallback<T4>,
+}
+
+
+impl ProfileButton<events::ButtonStateMachine> {
+   pub fn transition(&self, event: ProfileButton<events::ButtonState>, when: Instant) -> (Self, ProfileButton<Vec<events::ButtonEvent>>) {
+       (ProfileButton {
+           button: self.button.transition(event.button, when).0,
+       }, ProfileButton {
+           button: self.button.transition(event.button, when).1,
+       })
+   }
+}
+
+impl From<xencelabs_quick_keys::Event> for ProfileButton<events::ButtonState> {
+    fn from(b: xencelabs_quick_keys::Event) -> Self {
+        match b {
+            xencelabs_quick_keys::Event::Button { state } => ProfileButton {
+                button: state.button_extra.into()
+            },
+            _ => ProfileButton {
+                button: events::ButtonState::Unknown
+            }
+        }
+    }
 }

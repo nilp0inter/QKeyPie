@@ -8,7 +8,7 @@ use enigo::{
 };
 
 use crate::model::Model;
-use crate::actions::{Action, NonEnigoAction, WhichButton};
+use crate::actions::{Action, NonEnigoAction, ProfileButton, WhichButton};
 use crate::actions::{ButtonSet, WheelSet, ButtonCallback, WheelSetCallback, GoTo, ChangeRef};
 use crate::events::{ButtonState, WheelState, ButtonEvent, WheelEvent};
 use crate::state;
@@ -309,13 +309,16 @@ pub fn run(model: Model) -> anyhow::Result<()> {
         let ev = dev.read_timeout(100)?;
         let buttonset_event : ButtonSet<ButtonState> = ev.into();
         let wheel_event : WheelSet<WheelState, ButtonState> = ev.into();
+        let profilebutton_event : ProfileButton<ButtonState> = ev.into();
 
         let now = time::Instant::now();
-        let (new_buttonset_state, buttonset_events) = state.button_state.transition(buttonset_event, now);
+        let (new_buttonset_state, buttonset_events) = state.buttonset_state.transition(buttonset_event, now);
         let (new_wheel_state, wheel_events) = state.wheel_state.transition(wheel_event, now);
+        let (new_profilebutton_state, profilebutton_events) = state.profilebutton_state.transition(profilebutton_event, now);
 
-        state.button_state = new_buttonset_state;
+        state.buttonset_state = new_buttonset_state;
         state.wheel_state = new_wheel_state;
+        state.profilebutton_state = new_profilebutton_state;
 
         let current_profile = state.get_current_profile();
         let current_buttonset = state.get_current_buttonset();
@@ -356,12 +359,22 @@ pub fn run(model: Model) -> anyhow::Result<()> {
             final_goto = Some(goto);
         }
 
+        if let Some(goto) = process_buttonset_events(&mut enigo, &dev, profilebutton_events.button, &current_profile.button, WhichButton::ThisButton)? {
+            final_goto = Some(goto);
+        }
+
         if let Some(goto) = final_goto.clone() {
             let new_state = state.process_goto(goto)?;
             println!("current_profile_id: {}, current_buttonset_id: {}, current_wheel_id: {}", new_state.current_profile_id, new_state.current_buttonset_id, new_state.current_wheel_id);
             if new_state.current_profile_id != state.current_profile_id {
                 for action in &current_profile.active.on_exit {
                     eval(&mut enigo, &dev, action, None)?;
+                }
+                for action in &current_profile.button.active.on_exit {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::ButtonExtra))?;
+                }
+                for action in &new_state.get_current_profile().button.active.on_enter {
+                    eval(&mut enigo, &dev, action, Some(WhichButton::ButtonExtra))?;
                 }
                 for action in &new_state.get_current_profile().active.on_enter {
                     eval(&mut enigo, &dev, action, None)?;

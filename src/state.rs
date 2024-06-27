@@ -22,8 +22,9 @@ pub struct State {
     pub last_wheel_index: Option<usize>,
 
     pub model: model::Model,
-    pub button_state: actions::ButtonSet<events::ButtonStateMachine>,
+    pub buttonset_state: actions::ButtonSet<events::ButtonStateMachine>,
     pub wheel_state: actions::WheelSet<events::WheelStateMachine, events::ButtonStateMachine>,
+    pub profilebutton_state: actions::ProfileButton<events::ButtonStateMachine>,
 }
 
 impl State {
@@ -45,7 +46,8 @@ impl State {
             last_wheel_id: None,
             last_wheel_index: None,
             model,
-            button_state: actions::ButtonSet::default(),
+            buttonset_state: actions::ButtonSet::default(),
+            profilebutton_state: actions::ProfileButton::default(),
             wheel_state: actions::WheelSet::default(),
         })
     }
