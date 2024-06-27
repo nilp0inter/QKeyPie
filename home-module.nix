@@ -30,14 +30,15 @@ in
       Unit = {
         Description = "QKeyPie Daemon for the Xencelabs Quick Keys";
         Documentation = "https://github.com/nilp0inter/QKeyPie";
-        X-Restart-Triggers = [ "${config.xdg.configFile."qkeypie/config.toml".source}" ];
+        After = [ "graphical-session-pre.target" ];
+        PartOf = [ "graphical-session.target" ];
       };
       Service = {
         ExecStart = "${lib.getExe cfg.package}";
         Restart = "always";
         RestartSec = 5;
       };
-      Install.WantedBy = [ "default.target" ];
+      Install.WantedBy = [ "graphical-session.target" ];
     };
     xdg.configFile."qkeypie/config.toml".source = configSource;
   };
