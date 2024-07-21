@@ -59,6 +59,7 @@
           buildInputs = with pkgs; [
             udev
             xdotool
+            libxkbcommon
           ];
 
           src = ./.;
