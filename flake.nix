@@ -34,6 +34,7 @@
             pkg-config
             udev
             xdotool
+            libxkbcommon
           ];
           buildInputs = with pkgs; [
             cargo

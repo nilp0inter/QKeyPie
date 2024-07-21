@@ -9,7 +9,7 @@ edition = "2021"
 anyhow = "1.0.75"
 axum = "0.7.2"
 clap = { version = "4.4.12", features = ["string"] }
-enigo = { version = "0.2.0-rc2", features = ["serde"] }
+enigo = { version = "0.2.0-rc2", features = ["serde", "wayland"] }
 hidapi = "2.4.1"
 http-body-util = "0.1.0"
 hyper = { version = "1.1.0", features = ["full"] }
